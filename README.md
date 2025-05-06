@@ -23,7 +23,7 @@ For project 2, we will create a fantasy football app where the user plays agains
 - User plays a game against the computer. Start the season, which lasts 18 weeks, there's 10 seconds per week, Every 10 seconds (1 week passes)
 - At the end of the season it shows a winner, whoever won gets the money.
 
-<imp src="P2-Design-Diagrams">
+<img src="P2-Design-Diagrams.png">
 
 ## External API you're using
 
