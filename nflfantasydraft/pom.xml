@@ -103,11 +103,14 @@
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
+<!-- add_auth -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-inline</artifactId>
             <scope>test</scope>
         </dependency>
+
+<!-- API-Player-Table -->
 
         <!-- Other Dependencies -->
         <dependency>
