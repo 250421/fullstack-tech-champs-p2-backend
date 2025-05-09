@@ -13,10 +13,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())  // Disable CSRF for APIs
+        .csrf(csrf -> csrf
+        .ignoringRequestMatchers("/api/users/register", "/api/users/login")
+    )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/players/**").permitAll()  // Allow public access
-                .anyRequest().authenticated()  // Secure other endpoints
+                .requestMatchers("/api/players/**", "/api/users/register",
+                 "/api/users/login").permitAll()  // Allow public access
+                
+                 .anyRequest().authenticated()  // Secure other endpoints
             );
         return http.build();
     }
