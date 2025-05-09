@@ -45,12 +45,15 @@ public class UserServiceImpl implements UserService {
             throw new EAuthException("Email already in use");
         }
 
-        // Register user by creating the user doc
         Integer userId = userRepository.create(userName, email, password);
-
-        // Return user iD
-        return userRepository.findById(userId);
+    if (userId == null) {
+        throw new EAuthException("User creation failed");
     }
+    
+    // Instead of immediate retrieval, return a new User object
+    return new User(userId, userName, email, "", "USER"); // Password omitted for security
+}
+    
 
     @Override
     public User getUserById(int userId) {
