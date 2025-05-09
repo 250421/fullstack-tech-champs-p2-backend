@@ -46,12 +46,18 @@ public class PlayerService {
                 ApiPlayerDto[].class
             );
         
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                // 2. Only check existing players if API call succeeds
-                Set<Integer> existingPlayerIds = playerRepository.findExistingPlayerIds(season, week);
-                
+            if (response.getStatusCode().is2xxSuccessful()) {
                 ApiPlayerDto[] apiPlayers = response.getBody();
+                
+                // Add null check for the array itself
+                if (apiPlayers == null) {
+                    logger.warn("API returned null array for season {} week {}", season, week);
+                    return Collections.emptyList();
+                }
+                
                 logger.info("Fetched {} players from API for season {} week {}", apiPlayers.length, season, week);
+                
+                Set<Integer> existingPlayerIds = playerRepository.findExistingPlayerIds(season, week);
                 
                 // 3. Process in bulk - filter out existing players
                 List<Player> newPlayers = Arrays.stream(apiPlayers)
