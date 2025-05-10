@@ -17,10 +17,10 @@ import com.revature.nflfantasydraft.Exceptions.EAuthException;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
-    private static final String SQL_CREATE = "INSERT INTO USERS(USERNAME, EMAIL, PASSWORD) VALUES(?, ?, ?)";
-    private static final String SQL_COUNT_BY_EMAIL = "SELECT COUNT(*) FROM USERS WHERE EMAIL = ?";
-    private static final String SQL_FIND_BY_ID = "SELECT * FROM USERS WHERE USER_ID = ?";
-    private static final String SQL_FIND_BY_EMAIL = "SELECT * FROM USERS WHERE EMAIL = ?";
+    private static final String SQL_CREATE = "INSERT INTO USERS(username, email, password) VALUES(?, ?, ?)";
+    private static final String SQL_COUNT_BY_EMAIL = "SELECT COUNT(*) FROM users WHERE email = ?";
+    private static final String SQL_FIND_BY_ID = "SELECT * FROM USERS WHERE user_id = ?";
+    private static final String SQL_FIND_BY_EMAIL = "SELECT * FROM users WHERE email = ?";
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -35,7 +35,7 @@ public class UserRepositoryImpl implements UserRepository {
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(
                     SQL_CREATE, 
-                    new String[] {"USER_ID"}  // Explicitly specify the primary key column
+                    new String[] {"user_id"}  // Explicitly specify the primary key column
                 );
                 ps.setString(1, userName);
                 ps.setString(2, email);
@@ -48,8 +48,8 @@ public class UserRepositoryImpl implements UserRepository {
             System.out.println("Generated keys: " + keys);
             
             // Try multiple ways to get the generated ID
-            if (keys != null && keys.containsKey("USER_ID")) {
-                return ((Number) keys.get("USER_ID")).intValue();
+            if (keys != null && keys.containsKey("user_id")) {
+                return ((Number) keys.get("user_id")).intValue();
             } else if (keyHolder.getKey() != null) {
                 return keyHolder.getKey().intValue();
             }
@@ -91,11 +91,11 @@ public class UserRepositoryImpl implements UserRepository {
 
     private final RowMapper<User> userRowMapper = ((rs, rowNum) -> {
         return new User(
-            rs.getInt("USER_ID"),
-            rs.getString("USERNAME"),
-            rs.getString("EMAIL"),
-            rs.getString("PASSWORD"),
-            rs.getString("ROLE")
+            rs.getInt("user_id"),
+            rs.getString("username"),
+            rs.getString("email"),
+            rs.getString("password"),
+            rs.getString("role")
         );
     });
 }

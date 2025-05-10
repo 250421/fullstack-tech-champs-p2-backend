@@ -2,23 +2,23 @@ package com.revature.nflfantasydraft.Entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "USERS")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "USER_ID")
+    @Column(name = "user_id")
     private Integer userId;
 
-    @Column(name = "USERNAME")
+    @Column(name = "username")
     private String userName;
 
-    @Column(name = "EMAIL")
+    @Column(name = "email")
     private String email;
 
-    @Column(name = "PASSWORD")
+    @Column(name = "password")
     private String password;
 
-    @Column(name = "ROLE")
+    @Column(name = "role")
     private String role;
 
 

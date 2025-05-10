@@ -23,37 +23,43 @@ public class UserServiceImpl implements UserService {
         if (email != null) email = email.toLowerCase();
 
         // find user details
-        return userRepository.findByEmailAndPassword(email, password);
+        User user = userRepository.findByEmailAndPassword(email, password);
+        
+        if (user == null) {
+            throw new EAuthException("Invalid credentials");
+        }
+
+        return user;
     }   
 
     @Override
     public User registerUser(String userName, String email, String password) throws EAuthException {
+        // Validate email format
         Pattern pattern = Pattern.compile("^(.+)@(.+)$");
-        if(email != null) email = email.toLowerCase();
-        if(!pattern.matcher(email).matches()) {
+        if (email != null) email = email.toLowerCase();
+        
+        if (email == null || email.trim().isEmpty() || !pattern.matcher(email).matches()) {
             throw new EAuthException("Invalid email format");
         }
 
-        // -- Check if email already exists --
+        // Check if email already exists
         System.out.println("Checking if email is already taken: " + email);
         Integer count = userRepository.getCountByEmail(email);
-
         System.out.println("Got count: " + count);
 
-        // If email already exists throw error
-        if(count> 0) {
+        if (count > 0) {
             throw new EAuthException("Email already in use");
         }
 
+        // Create user and get userId
         Integer userId = userRepository.create(userName, email, password);
-    if (userId == null) {
-        throw new EAuthException("User creation failed");
+        if (userId == null) {
+            throw new EAuthException("User creation failed");
+        }
+        
+        // Return a User object without the password for security reasons
+        return new User(userId, userName, email, "", "USER");
     }
-    
-    // Instead of immediate retrieval, return a new User object
-    return new User(userId, userName, email, "", "USER"); // Password omitted for security
-}
-    
 
     @Override
     public User getUserById(int userId) {

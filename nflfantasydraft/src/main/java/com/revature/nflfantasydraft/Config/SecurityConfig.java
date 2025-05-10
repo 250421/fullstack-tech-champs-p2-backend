@@ -17,7 +17,7 @@ public class SecurityConfig {
         .ignoringRequestMatchers("/api/users/register", "/api/users/login")
     )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/players/**", "/api/users/register",
+                .requestMatchers("/api/players/**", "/api/users/register","/api/users/me",
                  "/api/users/login").permitAll()  // Allow public access
                 
                  .anyRequest().authenticated()  // Secure other endpoints
