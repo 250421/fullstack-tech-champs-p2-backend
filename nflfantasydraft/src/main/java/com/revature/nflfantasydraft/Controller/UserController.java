@@ -69,6 +69,7 @@ public class UserController {
         }
     }
     
+    
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> registerUser(@RequestBody Map<String, Object> userMap) {
         System.out.println("TESTING HERE");

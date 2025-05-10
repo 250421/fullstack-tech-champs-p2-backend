@@ -4,7 +4,7 @@ import lombok.Data;
 
 
 @Entity
-@Table(name = "player")
+@Table(name = "players")
 @Data
 public class Player {
     
