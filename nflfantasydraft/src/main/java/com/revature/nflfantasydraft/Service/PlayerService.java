@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import jakarta.persistence.EntityManager;
+
 
 import java.util.stream.Collectors;
 import java.util.*;
@@ -21,14 +23,16 @@ public class PlayerService {
 
     private final RestTemplate restTemplate;
     private final PlayerRepository playerRepository;
+    private final EntityManager entityManager;
 
     @Value("${sportsdata.api-key}")
     private String apiKey;
 
-    public PlayerService(RestTemplate restTemplate, PlayerRepository playerRepository) {
+    public PlayerService(RestTemplate restTemplate, PlayerRepository playerRepository,
+     EntityManager entityManager) {
         this.restTemplate = restTemplate;
         this.playerRepository = playerRepository;
-        
+        this.entityManager = entityManager;
     }
 
     public List<Player> fetchAndSavePlayersForWeek(int season, int week) {
@@ -109,5 +113,23 @@ player.setPosition(dto.getPosition());
 player.setFantasyPoints(dto.getFantasyPoints());
 return player;
 
-}}
+}
+
+
+// In PlayerService.java
+public List<Player> getPlayersByPositionWithTotalPoints(String position) {
+    String query = "SELECT p.playerApiId, p.name, p.team, p.position, " +
+                  "SUM(p.fantasyPoints) as totalFantasyPoints " +
+                  "FROM Player p " +
+                  "WHERE p.position = :position AND p.fantasyPoints > 0 " +
+                  "GROUP BY p.playerApiId, p.name, p.team, p.position " +
+                  "ORDER BY totalFantasyPoints DESC";
+    
+    return entityManager.createQuery(query, Player.class)
+                      .setParameter("position", position)
+                      .getResultList();
+}
+
+
+}
 

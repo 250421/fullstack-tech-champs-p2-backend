@@ -14,11 +14,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
         .csrf(csrf -> csrf
-        .ignoringRequestMatchers("/api/users/register", "/api/users/login", "/api/players/**")
+        .ignoringRequestMatchers("/api/users/register", "/api/users/login", "/api/players/**",
+        "/api/teams/**")
     )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/players/**", "/api/users/register",
-                 "/api/users/login", "/api/users/me").permitAll()  // Allow public access
+                 "/api/users/login", "/api/users/me", "/api/teams/**", "/api/players/position/**").permitAll()  // Allow public access
                 
                  .anyRequest().authenticated()  // Secure other endpoints
             );

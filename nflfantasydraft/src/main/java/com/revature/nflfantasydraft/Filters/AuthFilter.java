@@ -45,6 +45,7 @@ public class AuthFilter extends GenericFilterBean {
                     // Store the claims in request attributes
                     // This lets us access current userId from anywhere in the code
                     httpRequest.setAttribute("userId", Integer.parseInt(claims.get("userId").toString()));
+                    System.out.println("Setting userId attribute: " + httpRequest.getAttribute("userId"));
                 } catch (Exception e) {
                     System.out.println("Token is NOT VALID");
                     // Return an error with a message included. 

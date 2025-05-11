@@ -2,6 +2,8 @@ package com.revature.nflfantasydraft.Repository;
 
 
 
+import java.util.Optional;
+
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -60,13 +62,14 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User findById(Integer userId) {
-        try {
-            return jdbcTemplate.queryForObject(SQL_FIND_BY_ID, userRowMapper, userId);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
+public Optional<User> findById(Integer userId) {
+    try {
+        User user = jdbcTemplate.queryForObject(SQL_FIND_BY_ID, userRowMapper, userId);
+        return Optional.ofNullable(user);
+    } catch (EmptyResultDataAccessException e) {
+        return Optional.empty();
     }
+}
 
     private final RowMapper<User> userRowMapper = ((rs, rowNum) -> {
         return new User(

@@ -1,9 +1,9 @@
 package com.revature.nflfantasydraft.Service;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,12 +55,9 @@ public class UserServiceImpl implements UserService {
 }
     
 
-    @Override
-    public User getUserById(int userId) {
-        try {
-            return userRepository.findById(userId);
-        } catch (EmptyResultDataAccessException e) {
-            return null;
-        }
-    }
+@Override
+public Optional<User> getUserById(int userId) {
+    return userRepository.findById(userId); // Just pass through the Optional
+}
+
 }

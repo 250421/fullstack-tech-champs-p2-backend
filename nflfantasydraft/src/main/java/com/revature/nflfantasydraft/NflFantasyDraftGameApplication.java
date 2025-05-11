@@ -43,7 +43,8 @@ public class NflFantasyDraftGameApplication {
 		registrationBean.setFilter(authFilter);
 		registrationBean.addUrlPatterns(
 			"/api/players/*", 
-			"/api/users/me"
+			"/api/users/me",
+        "/api/teams/*"
 		);
 		return registrationBean;
 	}

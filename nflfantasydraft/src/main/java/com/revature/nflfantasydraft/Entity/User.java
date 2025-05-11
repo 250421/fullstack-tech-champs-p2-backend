@@ -22,6 +22,10 @@ public class User {
     private String role;
 
 
+    public User() {
+        
+    }
+
     public User(Integer userId, String userName, String email, String password, String role) {
         this.userId = userId;
         this.userName = userName;
@@ -29,6 +33,8 @@ public class User {
         this.password = password;
         this.role = role;
     }
+
+    
 
     // Getter and Setter for userId
     public Integer getUserId() {
