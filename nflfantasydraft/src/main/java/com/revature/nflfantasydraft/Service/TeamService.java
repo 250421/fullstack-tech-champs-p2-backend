@@ -11,5 +11,5 @@ public interface TeamService {
     void deleteTeam(Long teamId);
     Team getTeamById(Long teamId);
     List<Team> getTeamsByUserId(Integer userId);
-    Team addPlayerToTeam(Long teamId, String position, String playerInfo, Integer userId);
+    Team addPlayerToTeam(Long teamId, String position, Integer playerApiId, Integer userId);
 }

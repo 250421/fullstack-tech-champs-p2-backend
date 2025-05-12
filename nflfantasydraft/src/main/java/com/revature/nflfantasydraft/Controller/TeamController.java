@@ -128,7 +128,13 @@ public ResponseEntity<TeamResponseDto> addPlayerToTeam(
     
     // Get and validate user
     Integer userId = (Integer) request.getAttribute("userId");
-    if (userId == null) {
+    System.out.println("Authenticated userId: " + userId);
+    
+    Team team = teamService.getTeamById(teamId);
+    System.out.println("Team owner userId: " + team.getUser().getUserId());
+    
+    if (!team.getUser().getUserId().equals(userId)) {
+        System.out.println("Access denied - user doesn't own this team");
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
@@ -136,7 +142,7 @@ public ResponseEntity<TeamResponseDto> addPlayerToTeam(
     Team updatedTeam = teamService.addPlayerToTeam(
         teamId, 
         addPlayerRequest.getPosition(), 
-        addPlayerRequest.getPlayerInfo(), 
+        addPlayerRequest.getPlayerApiId(), 
         userId
     );
 
