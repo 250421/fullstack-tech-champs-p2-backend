@@ -1,6 +1,8 @@
 package com.revature.nflfantasydraft.Controller;
 import com.revature.nflfantasydraft.Entity.Player;
 import com.revature.nflfantasydraft.Service.PlayerService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +27,13 @@ public class PlayerController {
     public List<Player> getPlayersByWeek(@PathVariable int season, @PathVariable int week) {
         return playerService.getPlayersBySeasonAndWeek(season, week);
     }
+
+
+    @GetMapping("/position/{position}/total-points")
+public ResponseEntity<List<Player>> getPlayersByPositionWithTotalPoints(@PathVariable String position) {
+    return ResponseEntity.ok(playerService.getPlayersByPositionWithTotalPoints(position));
+}
+
 }
 
 

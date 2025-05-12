@@ -28,6 +28,18 @@ public class Player {
     private String position;
     private Double fantasyPoints;
 
+    public Player() {} 
+
+    public Player(Integer playerApiId, String name, String team, String position, Double fantasyPoints) {
+        this.playerApiId = playerApiId;
+        this.name = name;
+        this.team = team;
+        this.position = position;
+        this.fantasyPoints = fantasyPoints;
+    }
+
+
+
 }
 
 

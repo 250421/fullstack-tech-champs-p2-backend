@@ -5,6 +5,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -40,7 +41,7 @@ public class UserController {
                 return ResponseEntity.status(403).body("{\"error\": \"Unauthorized access\"}");
             }
 
-            User user = userService.getUserById(userId);
+            Optional <User> user = userService.getUserById(userId);
             if (user == null) {
                 return ResponseEntity.status(404).body("{\"error\": \"User not found\"}");
             }
