@@ -46,7 +46,7 @@ public ResponseEntity<TeamResponseDto> createTeam(@RequestBody TeamRequestDto te
     return ResponseEntity.ok(responseDto);
 }
 
-@GetMapping("/{userId}")
+@GetMapping("/team1/{userId}")
 public ResponseEntity<List<TeamResponseDto>> getUserTeams(HttpServletRequest request) {
     Integer userId = (Integer) request.getAttribute("userId");
     if (userId == null) {
@@ -75,7 +75,7 @@ private TeamResponseDto convertToResponseDto(Team team) {
     return dto;
 }
 
-    @GetMapping("/{teamId}")
+    @GetMapping("/teams/{teamId}")
     public ResponseEntity<TeamResponseDto> getTeam(@PathVariable Long teamId, 
         HttpServletRequest request) {
         Integer userId = (Integer) request.getAttribute("userId");
