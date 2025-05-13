@@ -19,6 +19,15 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     boolean existsByPlayerApiIdAndSeasonAndWeek(Integer playerApiId, Integer season, Integer week);
     
+    @Query("SELECT p FROM Player p WHERE p.playerApiId = :playerApiId")
+    List<Player> findAllByPlayerApiId(@Param("playerApiId") Integer playerApiId);
+
+    @Query("SELECT p.playerApiId, p.name, p.team, p.position, SUM(p.fantasyPoints) as totalPoints " +
+       "FROM Player p " +
+       "WHERE p.playerApiId = :playerApiId " +
+       "GROUP BY p.playerApiId, p.name, p.team, p.position")
+List<Object[]> findPlayerWithTotalPointsByApiId(@Param("playerApiId") Integer playerApiId);
+
 }
 
 

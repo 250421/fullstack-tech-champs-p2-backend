@@ -2,11 +2,16 @@ package com.revature.nflfantasydraft.Service;
 
 import com.revature.nflfantasydraft.Dto.TeamRequestDto;
 import com.revature.nflfantasydraft.Dto.TeamResponseDto;
+import com.revature.nflfantasydraft.Entity.Player;
 import com.revature.nflfantasydraft.Entity.Team;
 import com.revature.nflfantasydraft.Entity.User;
 import com.revature.nflfantasydraft.Exceptions.ETeamException;
+import com.revature.nflfantasydraft.Repository.PlayerRepository;
 import com.revature.nflfantasydraft.Repository.TeamRepository;
 import com.revature.nflfantasydraft.Repository.UserRepository;
+
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +26,10 @@ public class TeamServiceImpl implements TeamService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired // Add this annotation
+    private PlayerRepository playerRepository; 
+
+    
     @Override
 public TeamResponseDto createTeam(TeamRequestDto teamRequestDto) {
     // Validate user exists
@@ -85,7 +94,7 @@ private TeamResponseDto convertToResponseDto(Team team) {
     }
 
     @Override
-public Team addPlayerToTeam(Long teamId, String position, String playerInfo, Integer userId) {
+public Team addPlayerToTeam(Long teamId, String position, Integer playerApiId, Integer userId) {
     // Get team and verify ownership
     Team team = teamRepository.findById(teamId)
         .orElseThrow(() -> new ETeamException("Team not found"));
@@ -93,6 +102,32 @@ public Team addPlayerToTeam(Long teamId, String position, String playerInfo, Int
     if (!team.getUser().getUserId().equals(userId)) {
         throw new ETeamException("Unauthorized to modify this team");
     }
+
+    // 1. Get all player records for this API ID
+    List<Player> players = playerRepository.findAllByPlayerApiId(playerApiId);
+    if (players.isEmpty()) {
+        throw new ETeamException("Player not found with ID: " + playerApiId);
+    }
+    
+    // Use the first player (they should all have the same name/team/position)
+    Player player = players.get(0);
+
+    // 2. Calculate total points across all records
+    Double totalPoints = players.stream()
+        .mapToDouble(Player::getFantasyPoints)
+        .sum();
+
+    // 3. Verify position matches
+    if (!player.getPosition().equalsIgnoreCase(position)) {
+        throw new ETeamException("Player position (" + player.getPosition() + 
+                               ") doesn't match requested position (" + position + ")");
+    }
+
+    // 4. Format the player info string
+    String playerInfo = String.format("%s,%s,%.1f", 
+        player.getName(), 
+        player.getTeam(), 
+        totalPoints);
 
     // Update the appropriate position
     switch (position.toUpperCase()) {
