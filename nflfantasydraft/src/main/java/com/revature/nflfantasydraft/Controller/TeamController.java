@@ -31,7 +31,7 @@ public class TeamController {
 
     @PostMapping
 public ResponseEntity<TeamResponseDto> createTeam(@RequestBody TeamRequestDto teamRequestDto, 
-                                               HttpServletRequest request) {
+    HttpServletRequest request) {
     Integer userIdFromToken = (Integer) request.getAttribute("userId");
     
     if (userIdFromToken == null) {
@@ -46,7 +46,7 @@ public ResponseEntity<TeamResponseDto> createTeam(@RequestBody TeamRequestDto te
     return ResponseEntity.ok(responseDto);
 }
 
-@GetMapping
+@GetMapping("/{userId}")
 public ResponseEntity<List<TeamResponseDto>> getUserTeams(HttpServletRequest request) {
     Integer userId = (Integer) request.getAttribute("userId");
     if (userId == null) {
@@ -76,38 +76,38 @@ private TeamResponseDto convertToResponseDto(Team team) {
 }
 
     @GetMapping("/{teamId}")
-public ResponseEntity<TeamResponseDto> getTeam(@PathVariable Long teamId, 
-                                             HttpServletRequest request) {
-    Integer userId = (Integer) request.getAttribute("userId");
-    if (userId == null) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-    }
-    
-    Team team = teamService.getTeamById(teamId);
-    
-    // Verify the requesting user owns the team
-    if (!team.getUser().getUserId().equals(userId)) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-    }
-    
-    // Convert to DTO
-    TeamResponseDto responseDto = convertToResponseDto(team);
-    return ResponseEntity.ok(responseDto);
-}
-
-
-
-    @PutMapping("/{teamId}")
-    public ResponseEntity<Team> updateTeam(@PathVariable Long teamId, @RequestBody Team team, 
-                                         HttpServletRequest request) {
+    public ResponseEntity<TeamResponseDto> getTeam(@PathVariable Long teamId, 
+        HttpServletRequest request) {
         Integer userId = (Integer) request.getAttribute("userId");
-        Team existingTeam = teamService.getTeamById(teamId);
-        if (!existingTeam.getUser().getUserId().equals(userId)) {
-            return ResponseEntity.status(403).build();
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
-        team.setTeamId(teamId);
-        return ResponseEntity.ok(teamService.updateTeam(team));
+        
+        Team team = teamService.getTeamById(teamId);
+        
+        // Verify the requesting user owns the team
+        if (!team.getUser().getUserId().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        
+        // Convert to DTO
+        TeamResponseDto responseDto = convertToResponseDto(team);
+        return ResponseEntity.ok(responseDto);
     }
+
+
+
+        @PutMapping("/{teamId}")
+        public ResponseEntity<Team> updateTeam(@PathVariable Long teamId, @RequestBody Team team, 
+            HttpServletRequest request) {
+            Integer userId = (Integer) request.getAttribute("userId");
+            Team existingTeam = teamService.getTeamById(teamId);
+            if (!existingTeam.getUser().getUserId().equals(userId)) {
+                return ResponseEntity.status(403).build();
+            }
+            team.setTeamId(teamId);
+            return ResponseEntity.ok(teamService.updateTeam(team));
+        }
 
     @DeleteMapping("/{teamId}")
     public ResponseEntity<Void> deleteTeam(@PathVariable Long teamId, HttpServletRequest request) {
