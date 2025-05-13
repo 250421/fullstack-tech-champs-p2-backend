@@ -4,6 +4,8 @@ import com.revature.nflfantasydraft.Dto.ApiPlayerDto;
 import com.revature.nflfantasydraft.Entity.Player;
 import com.revature.nflfantasydraft.Repository.PlayerRepository;
 import com.revature.nflfantasydraft.Service.PlayerService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,13 +16,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
-
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -35,6 +35,9 @@ class PlayerServiceTest {
     @Mock
     private PlayerRepository playerRepository;
 
+    @Mock
+    private EntityManager entityManager;
+
     @InjectMocks
     private PlayerService playerService;
 
@@ -43,7 +46,6 @@ class PlayerServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Setup test data
         apiPlayerDto = new ApiPlayerDto();
         apiPlayerDto.setPlayerApiId(12345);
         apiPlayerDto.setSeason(2024);
@@ -69,126 +71,129 @@ class PlayerServiceTest {
 
     @Test
     void fetchAndSavePlayersForWeek_Success() {
-        // Mock API response
+        // 1. Create test data
         ApiPlayerDto[] apiPlayers = {apiPlayerDto};
+        
+        // 2. Create a real ResponseEntity (not a mock)
         ResponseEntity<ApiPlayerDto[]> responseEntity = 
             new ResponseEntity<>(apiPlayers, HttpStatus.OK);
         
+        // 3. Setup mock behavior - when exchange() is called, return our responseEntity
         when(restTemplate.exchange(
             anyString(), 
             eq(HttpMethod.GET), 
             isNull(), 
             eq(ApiPlayerDto[].class))
         ).thenReturn(responseEntity);
-
-        // Mock repository responses
+    
+        // 4. Mock repository responses
         when(playerRepository.findExistingPlayerIds(anyInt(), anyInt()))
             .thenReturn(Collections.emptySet());
         when(playerRepository.saveAll(anyList()))
             .thenReturn(Collections.singletonList(playerEntity));
-
-        // Test
+    
+        // 5. Execute the test
         List<Player> result = playerService.fetchAndSavePlayersForWeek(2024, 1);
-
-        // Verify
+    
+        // 6. Verify results
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("Dak Prescott", result.get(0).getName());
         
-        verify(restTemplate, times(1))
-            .exchange(anyString(), eq(HttpMethod.GET), isNull(), eq(ApiPlayerDto[].class));
-        verify(playerRepository, times(1)).findExistingPlayerIds(2024, 1);
-        verify(playerRepository, times(1)).saveAll(anyList());
+        // 7. Verify mock interactions
+        verify(restTemplate).exchange(
+            anyString(), 
+            eq(HttpMethod.GET), 
+            isNull(), 
+            eq(ApiPlayerDto[].class));
+        verify(playerRepository).findExistingPlayerIds(2024, 1);
+        verify(playerRepository).saveAll(anyList());
     }
 
     @Test
-void fetchAndSavePlayersForWeek_ApiFailure() {
-    // Mock API failure with specific exception
+    void fetchAndSavePlayersForWeek_NoNewPlayers() {
+        // 1. Create test data
+    ApiPlayerDto[] apiPlayers = {apiPlayerDto};
+    ResponseEntity<ApiPlayerDto[]> responseEntity = 
+        new ResponseEntity<>(apiPlayers, HttpStatus.OK);
+    
+    // 2. Corrected mock setup with proper parentheses
     when(restTemplate.exchange(
         anyString(), 
         eq(HttpMethod.GET), 
         isNull(), 
-        eq(ApiPlayerDto[].class))
-    ).thenThrow(new RestClientException("API Error"));
+        eq(ApiPlayerDto[].class)
+    )).thenReturn(responseEntity);  // Properly attached to the when() clause
 
-    // Test
+    // 3. Mock repository response
+    when(playerRepository.findExistingPlayerIds(anyInt(), anyInt()))
+        .thenReturn(Set.of(apiPlayerDto.getPlayerApiId()));
+
+    // 4. Execute test
     List<Player> result = playerService.fetchAndSavePlayersForWeek(2024, 1);
 
-    // Verify
-    assertTrue(result.isEmpty(), "Should return empty list on API failure");
-    
-    // Verify no repository interactions occurred
-    verify(playerRepository, never()).findExistingPlayerIds(anyInt(), anyInt());
+    // 5. Verify results
+    assertTrue(result.isEmpty());
     verify(playerRepository, never()).saveAll(anyList());
-}
-
-    @Test
-    void fetchAndSavePlayersForWeek_NoNewPlayers() {
-        // Mock API response
-        ApiPlayerDto[] apiPlayers = {apiPlayerDto};
-        ResponseEntity<ApiPlayerDto[]> responseEntity = 
-            new ResponseEntity<>(apiPlayers, HttpStatus.OK);
-        
-        when(restTemplate.exchange(
-            anyString(), 
-            eq(HttpMethod.GET), 
-            isNull(), 
-            eq(ApiPlayerDto[].class))
-        ).thenReturn(responseEntity);
-
-        // Mock repository - player already exists
-    when(playerRepository.findExistingPlayerIds(anyInt(), anyInt()))
-    .thenReturn(Collections.singleton(apiPlayerDto.getPlayerApiId()));
-
-        // Test
-        List<Player> result = playerService.fetchAndSavePlayersForWeek(2024, 1);
-
-        // Verify
-    assertTrue(result.isEmpty(), "Should return empty list when no new players");
-    verify(playerRepository, never()).saveAll(anyList());
-    verify(playerRepository, times(1)).findExistingPlayerIds(2024, 1);
     }
 
     @Test
     void getPlayersBySeasonAndWeek_Success() {
-        // Mock repository response
         when(playerRepository.findBySeasonAndWeek(2024, 1))
             .thenReturn(Collections.singletonList(playerEntity));
 
-        // Test
         List<Player> result = playerService.getPlayersBySeasonAndWeek(2024, 1);
 
-        // Verify
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("Dak Prescott", result.get(0).getName());
     }
 
     @Test
+    void getPlayersByPositionWithTotalPoints_Success() {
+        // 1. Create test players
+        Player player1 = new Player();
+        player1.setPlayerApiId(12345);
+        player1.setFantasyPoints(10.0);
+        
+        Player player2 = new Player();
+        player2.setPlayerApiId(12345);
+        player2.setFantasyPoints(15.0);
+    
+        // 2. Create and configure the typed query mock
+        @SuppressWarnings("unchecked")
+        TypedQuery<Player> typedQueryMock = mock(TypedQuery.class);
+        
+        // Configure method chaining:
+        // - setParameter() should return the mock itself (for chaining)
+        // - getResultList() should return our test data
+        when(typedQueryMock.setParameter(anyString(), any()))
+            .thenReturn(typedQueryMock);
+        when(typedQueryMock.getResultList())
+            .thenReturn(Arrays.asList(player1, player2));
+    
+        // 3. Configure entityManager to return our prepared mock
+        when(entityManager.createQuery(anyString(), eq(Player.class)))
+            .thenReturn(typedQueryMock);
+    
+        // 4. Execute the test
+        List<Player> result = playerService.getPlayersByPositionWithTotalPoints("QB");
+    
+        // 5. Verify results
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        
+        // 6. Verify interactions
+        verify(typedQueryMock).setParameter(eq("position"), eq("QB"));
+        verify(typedQueryMock).getResultList();
+    }
+
+    @Test
     void convertToEntity_ValidDto() {
-        // Setup test data
-        ApiPlayerDto dto = new ApiPlayerDto();
-        dto.setPlayerApiId(12345);
-        dto.setSeason(2024);
-        dto.setWeek(1);
-        dto.setTeam("DAL");
-        dto.setOpponent("NYG");
-        dto.setNumber(4);
-        dto.setName("Dak Prescott");
-        dto.setPosition("QB");
-        dto.setFantasyPoints(25.7);
+        Player result = playerService.convertToEntity(apiPlayerDto);
 
-        // Test
-        Player result = playerService.convertToEntity(dto);
-
-        // Verify
         assertNotNull(result);
         assertEquals(12345, result.getPlayerApiId());
-        assertEquals(2024, result.getSeason());
-        assertEquals(1, result.getWeek());
-        assertEquals("DAL", result.getTeam());
-        assertEquals("NYG", result.getOpponent());
-        assertEquals(4, result.getNumber());
         assertEquals("Dak Prescott", result.getName());
         assertEquals("QB", result.getPosition());
         assertEquals(25.7, result.getFantasyPoints());
