@@ -1,4 +1,4 @@
 FROM openjdk:17-slim
-COPY target/yolp-0.0.1-SNAPSHOT.jar app.jar
+COPY fullstack-tech-champs-p2-backend.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","/app.jar"]
