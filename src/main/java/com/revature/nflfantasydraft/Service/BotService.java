@@ -15,6 +15,10 @@
         TeamResponseDto botPickPlayer(BotPickPlayerRequestDto botPickPlayerRequestDto);
         List<TeamResponseDto> getAllBotTeams();
         List<BotResponseDto> getAllBots(); 
+
+
+        void deleteBot(Long botId);
+        void deleteBotTeam(Long teamId);
     }
  
   

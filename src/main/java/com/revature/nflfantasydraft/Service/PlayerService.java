@@ -122,6 +122,7 @@ public List<Player> getPlayersByPositionWithTotalPoints(String position) {
                   "SUM(p.fantasyPoints) as totalFantasyPoints " +
                   "FROM Player p " +
                   "WHERE p.position = :position AND p.fantasyPoints > 0 " +
+                  "AND p.isDrafted = false " +  // Add this condition
                   "GROUP BY p.playerApiId, p.name, p.team, p.position " +
                   "ORDER BY totalFantasyPoints DESC";
     
@@ -130,7 +131,4 @@ public List<Player> getPlayersByPositionWithTotalPoints(String position) {
                       .getResultList();
 }
 
-
 }
-
-  

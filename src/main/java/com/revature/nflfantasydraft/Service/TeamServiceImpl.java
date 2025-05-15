@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -134,6 +135,12 @@ public Team addPlayerToTeam(Long teamId, String position, Integer playerApiId, I
         throw new ETeamException("Player not found with ID: " + playerApiId);
     }
     
+    // Mark all player records as drafted
+    players.forEach(player -> {
+        player.setIsDrafted(true);
+        playerRepository.save(player);
+    });
+
     // Use the first player (they should all have the same name/team/position)
     Player player = players.get(0);
 
@@ -180,20 +187,39 @@ public Team addPlayerToTeam(Long teamId, String position, Integer playerApiId, I
 
 @Override
 public List<Player> getPlayersByPositionWithTotalPoints(String position) {
-    List<Object[]> results = playerRepository.findPlayersByPositionWithTotalPoints(position);
+    // Get all available (undrafted) players for the position
+    List<Player> availablePlayers = playerRepository.findAvailablePlayersByPosition(position);
     
-    return results.stream()
-        .map(result -> {
+    // Create a custom class to use as grouping key
+    record PlayerKey(Integer playerApiId, String name, String team, String position) {}
+    
+    // Group and sum fantasy points
+    Map<PlayerKey, Double> playerPoints = availablePlayers.stream()
+        .collect(Collectors.groupingBy(
+            player -> new PlayerKey(
+                player.getPlayerApiId(),
+                player.getName(),
+                player.getTeam(),
+                player.getPosition()
+            ),
+            Collectors.summingDouble(Player::getFantasyPoints)
+        ));
+    
+    // Convert to list of Player objects
+    return playerPoints.entrySet().stream()
+        .map(entry -> {
             Player player = new Player();
-            player.setPlayerApiId((Integer) result[0]);
-            player.setName((String) result[1]);
-            player.setTeam((String) result[2]);
-            player.setPosition((String) result[3]);
-            player.setFantasyPoints((Double) result[4]);
+            player.setPlayerApiId(entry.getKey().playerApiId());
+            player.setName(entry.getKey().name());
+            player.setTeam(entry.getKey().team());
+            player.setPosition(entry.getKey().position());
+            player.setFantasyPoints(entry.getValue());
             return player;
         })
         .sorted((p1, p2) -> Double.compare(p2.getFantasyPoints(), p1.getFantasyPoints()))
         .collect(Collectors.toList());
 }
+
+       
 
 }  

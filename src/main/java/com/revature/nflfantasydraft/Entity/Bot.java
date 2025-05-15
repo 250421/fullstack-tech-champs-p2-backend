@@ -15,7 +15,7 @@ public class Bot {
     @Column(name = "league_id")
     private Long leagueId;
 
-    @Column(name = "team_id")
+    @Column(name = "team_id", insertable = false, updatable = false)
     private Long teamId;
 
     @Column(name = "difficulty_level")
@@ -23,4 +23,8 @@ public class Bot {
 
     @Column(name = "strategy")
     private String strategy; // e.g., "BALANCED", "OFFENSIVE", "DEFENSIVE"
+
+    @OneToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
 }    

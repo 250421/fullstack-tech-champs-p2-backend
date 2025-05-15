@@ -8,3 +8,4 @@ public class BotPickPlayerRequestDto {
     private Long teamId;
     private String position;
 }    
+

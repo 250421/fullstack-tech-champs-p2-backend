@@ -195,6 +195,13 @@ public TeamResponseDto botPickPlayer(BotPickPlayerRequestDto botPickPlayerReques
     try {
         Integer playerApiId = Integer.parseInt(response);
         
+        // Get all player records for this API ID and mark them as drafted
+        List<Player> players = playerRepository.findAllByPlayerApiId(playerApiId);
+        players.forEach(player -> {
+            player.setIsDrafted(true);
+            playerRepository.save(player);
+        });
+
         // Get aggregated player data
         List<Object[]> playerData = playerRepository.findPlayerSummaryByApiId(playerApiId);
         
@@ -289,6 +296,41 @@ public TeamResponseDto botPickPlayer(BotPickPlayerRequestDto botPickPlayerReques
             logger.error("Error retrieving all bots", e);
             throw new EBotException("Failed to retrieve bots: " + e.getMessage());
         }
+    }
+
+
+    @Override
+    public void deleteBot(Long botId) {
+        // Check if bot exists
+        Bot bot = botRepository.findById(botId)
+                .orElseThrow(() -> new EBotException("Bot not found with ID: " + botId));
+        
+        // Delete associated team first if exists
+        if (bot.getTeamId() != null) {
+            teamRepository.deleteById(bot.getTeamId());
+        }
+        
+        // Delete the bot
+        botRepository.deleteById(botId);
+    }
+    
+    @Override
+    public void deleteBotTeam(Long teamId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EBotException("Team not found with ID: " + teamId));
+        
+        if (!Boolean.TRUE.equals(team.getIsBot())) {
+            throw new EBotException("Only bot teams can be deleted with this endpoint");
+        }
+        
+        // Delete the team
+        teamRepository.deleteById(teamId);
+        
+        // Optionally: Also delete the bot associated with this team
+        botRepository.findByTeamId(teamId).ifPresent(bot -> {
+            bot.setTeamId(null);
+            botRepository.save(bot);
+        });
     }
 
 }
