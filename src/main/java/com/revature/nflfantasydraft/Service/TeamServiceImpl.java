@@ -1,5 +1,6 @@
 package com.revature.nflfantasydraft.Service;
 
+import com.revature.nflfantasydraft.Dto.TeamLeaderboardDto;
 import com.revature.nflfantasydraft.Dto.TeamRequestDto;
 import com.revature.nflfantasydraft.Dto.TeamResponseDto;
 import com.revature.nflfantasydraft.Entity.Player;
@@ -229,5 +230,51 @@ public List<Player> getPlayersByPositionWithTotalPoints(String position) {
                     .map(this::convertToResponseDto)
                     .collect(Collectors.toList());
         }
+
+        @Override
+public List<TeamLeaderboardDto> getTeamsLeaderboard() {
+    List<Team> allTeams = teamRepository.findAll();
+    
+    return allTeams.stream()
+        .map(team -> {
+            TeamLeaderboardDto dto = new TeamLeaderboardDto();
+            dto.setTeamName(team.getTeamName());
+            dto.setImgUrl(team.getImgUrl());
+            dto.setTotalFantasyPoints(calculateTotalFantasyPoints(team));
+            return dto;
+        })
+        .sorted((t1, t2) -> Double.compare(t2.getTotalFantasyPoints(), t1.getTotalFantasyPoints()))
+        .collect(Collectors.toList());
+}
+
+private Double calculateTotalFantasyPoints(Team team) {
+    double total = 0.0;
+    
+    // Helper method to parse player info and extract points
+    total += parseFantasyPoints(team.getQb());
+    total += parseFantasyPoints(team.getRb());
+    total += parseFantasyPoints(team.getWr());
+    total += parseFantasyPoints(team.getTe());
+    total += parseFantasyPoints(team.getK());
+    
+    return total;
+}
+
+private Double parseFantasyPoints(String playerInfo) {
+    if (playerInfo == null || playerInfo.isEmpty()) {
+        return 0.0;
+    }
+    
+    try {
+        // Assuming format is "Name,Team,PlayerApiId,FantasyPoints"
+        String[] parts = playerInfo.split(",");
+        if (parts.length >= 4) {
+            return Double.parseDouble(parts[3].trim());
+        }
+    } catch (Exception e) {
+        // Log error if needed
+    }
+    return 0.0;
+}
 
 }  

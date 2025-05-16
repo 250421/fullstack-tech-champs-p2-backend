@@ -6,28 +6,44 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-
-
-@Configuration
+@Configuration // Marks this class as a configuration class for Spring
 public class SecurityConfig {
     
-    @Bean
+    @Bean // Defines a bean for the SecurityFilterChain
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
         .csrf(csrf -> csrf
-        .ignoringRequestMatchers("/api/users/register", "/api/users/login", "/api/players/**",
-        "/api/teams/**", "/api/users/bot/**")
-    )
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.DELETE, "/api/users/bot/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/teams/league/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/players/not-drafted").permitAll()
-                .requestMatchers("/api/players/**", "/api/users/register",
-                 "/api/users/login", "/api/users/me", "/api/teams/**", "/api/players/position/**",
-           "/api/users/bot/**").permitAll()  // Allow public access
-                
-                 .anyRequest().authenticated()  // Secure other endpoints
-            );
+            // Disables CSRF protection for specific endpoints
+            .ignoringRequestMatchers(
+                "/api/users/register", 
+                "/api/users/login", 
+                "/api/players/**",
+                "/api/teams/**", 
+                "/api/users/bot/**"
+            )
+        )
+        .authorizeHttpRequests(auth -> auth
+            // Allows DELETE requests to "/api/users/bot/**" without authentication
+            .requestMatchers(HttpMethod.DELETE, "/api/users/bot/**").permitAll()
+            // Allows GET requests to "/api/teams/league/**" without authentication
+            .requestMatchers(HttpMethod.GET, "/api/teams/league/**").permitAll()
+            // Allows GET requests to "/api/players/not-drafted" without authentication
+            .requestMatchers(HttpMethod.GET, "/api/players/not-drafted").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/teams/leaderboard").permitAll()
+            // Allows public access to the specified endpoints
+            .requestMatchers(
+                "/api/players/**", 
+                "/api/users/register",
+                "/api/users/login", 
+                "/api/users/me", 
+                "/api/teams/**", 
+                "/api/players/position/**",
+                "/api/users/bot/**"
+            ).permitAll()
+            // Requires authentication for all other endpoints
+            .anyRequest().authenticated()
+        );
+        // Builds and returns the SecurityFilterChain
         return http.build();
     }
-}   
+}

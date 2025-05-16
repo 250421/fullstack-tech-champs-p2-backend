@@ -1,6 +1,7 @@
 package com.revature.nflfantasydraft.Controller;
 
 import com.revature.nflfantasydraft.Dto.AddPlayerRequestDto;
+import com.revature.nflfantasydraft.Dto.TeamLeaderboardDto;
 import com.revature.nflfantasydraft.Dto.TeamRequestDto;
 import com.revature.nflfantasydraft.Dto.TeamResponseDto;
 import com.revature.nflfantasydraft.Entity.Team;
@@ -155,5 +156,11 @@ public ResponseEntity<TeamResponseDto> addPlayerToTeam(
         List<TeamResponseDto> teams = teamService.getTeamsByLeagueId(leagueId);
         return ResponseEntity.ok(teams);
     }
+
+    @GetMapping("/leaderboard")
+    public ResponseEntity<List<TeamLeaderboardDto>> getTeamsLeaderboard() {
+    List<TeamLeaderboardDto> leaderboard = teamService.getTeamsLeaderboard();
+    return ResponseEntity.ok(leaderboard);
+}
 
 }   

@@ -1,5 +1,6 @@
 package com.revature.nflfantasydraft.Service;
 
+import com.revature.nflfantasydraft.Dto.TeamLeaderboardDto;
 import com.revature.nflfantasydraft.Dto.TeamRequestDto;
 import com.revature.nflfantasydraft.Dto.TeamResponseDto;
 import com.revature.nflfantasydraft.Entity.Player;
@@ -16,4 +17,5 @@ public interface TeamService {
     TeamResponseDto convertToResponseDto(Team savedTeam);
     List<Player> getPlayersByPositionWithTotalPoints(String position);
     List<TeamResponseDto> getTeamsByLeagueId(Long leagueId);
+    List<TeamLeaderboardDto> getTeamsLeaderboard();
 }  
