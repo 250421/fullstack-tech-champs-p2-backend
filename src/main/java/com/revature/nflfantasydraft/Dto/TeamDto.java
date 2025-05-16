@@ -11,4 +11,4 @@ public class TeamDto {
     private String wr;
     private String te;
     private String k;
-}
+}  

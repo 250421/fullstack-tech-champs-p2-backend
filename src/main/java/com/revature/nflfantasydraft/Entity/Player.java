@@ -26,7 +26,12 @@ public class Player {
     private Integer number;
     private String name;
     private String position;
+    
+    @Column(name = "fantasy_points")
     private Double fantasyPoints;
+
+    @Column(name = "is_drafted", columnDefinition = "boolean default false")
+    private Boolean isDrafted = false;
 
     public Player() {} 
 
@@ -38,8 +43,11 @@ public class Player {
         this.fantasyPoints = fantasyPoints;
     }
 
+    // Explicit setter if you prefer this naming
+    public void setIsDrafted(Boolean isDrafted) {
+        this.isDrafted = isDrafted;
+    }
 
-
-}
-
+}  
+ 
 

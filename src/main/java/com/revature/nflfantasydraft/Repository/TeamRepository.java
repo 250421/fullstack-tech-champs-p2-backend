@@ -13,4 +13,7 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
     
     @Query("SELECT t FROM Team t WHERE t.user.userId = :userId AND t.teamId = :teamId")
     Team findByUserAndTeamId(Integer userId, Long teamId);
-}
+
+    List<Team> findByLeagueId(Long leagueId);
+
+}   

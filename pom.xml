@@ -131,6 +131,13 @@
             <artifactId>dotenv-java</artifactId>
             <version>${dotenv.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.theokanning.openai-gpt3-java</groupId>
+            <artifactId>service</artifactId>
+            <version>0.18.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

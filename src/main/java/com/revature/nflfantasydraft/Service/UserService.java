@@ -9,4 +9,4 @@ public interface  UserService {
     User loginUser(String email, String password) throws EAuthException;
     User registerUser(String userName, String email, String password) throws EAuthException;
     Optional<User> getUserById(int userId);
-}
+}  

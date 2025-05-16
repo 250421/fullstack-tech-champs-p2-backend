@@ -1,0 +1,110 @@
+package com.revature.nflfantasydraft.Controller;
+
+import com.revature.nflfantasydraft.Dto.*;
+import com.revature.nflfantasydraft.Exceptions.EBotException;
+import com.revature.nflfantasydraft.Service.BotService;
+
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/users/bot")
+public class BotController {
+
+    @Autowired
+    private BotService botService;
+
+    private static final Logger logger = LoggerFactory.getLogger(BotController.class);
+
+    @PostMapping
+    public ResponseEntity<BotResponseDto> createBot(@RequestBody BotRequestDto botRequestDto) {
+        return ResponseEntity.ok(botService.createBot(botRequestDto));
+    }
+
+    @PostMapping("/teams")
+public ResponseEntity<?> createBotTeam(@RequestBody BotTeamRequestDto botTeamRequestDto) {
+    try {
+        TeamResponseDto response = botService.createBotTeam(botTeamRequestDto);
+        return ResponseEntity.ok(response);
+    } catch (EBotException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", e.getMessage()));
+    }
+}
+
+@GetMapping("/teams")
+public ResponseEntity<?> getAllBotTeams() {
+    try {
+        List<TeamResponseDto> botTeams = botService.getAllBotTeams();
+        
+        if (botTeams == null || botTeams.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "No bot teams found"));
+        }
+        
+        return ResponseEntity.ok(botTeams);
+    } catch (Exception e) {
+        logger.error("Error in getAllBotTeams: ", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of(
+                    "error", "Failed to retrieve bot teams",
+                    "details", e.getMessage() != null ? e.getMessage() : "Unknown error"
+                ));
+    }
+}
+
+@GetMapping
+    public ResponseEntity<?> getAllBots() {
+        try {
+            List<BotResponseDto> bots = botService.getAllBots();
+            if (bots.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", "No bots found"));
+            }
+            return ResponseEntity.ok(bots);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to retrieve bots: " + e.getMessage()));
+        }
+    }
+
+
+    @PostMapping("/{teamId}/pick-player")
+    public ResponseEntity<TeamResponseDto> botPickPlayer(
+            @PathVariable Long teamId,
+            @RequestBody BotPickPlayerRequestDto botPickPlayerRequestDto) {
+        botPickPlayerRequestDto.setTeamId(teamId);
+        return ResponseEntity.ok(botService.botPickPlayer(botPickPlayerRequestDto));
+    }
+
+@DeleteMapping("/teams/{teamId}")
+public ResponseEntity<?> deleteBotTeam(@PathVariable Long teamId) {
+    try {
+        botService.deleteBotTeam(teamId);
+        return ResponseEntity.ok().build();
+    } catch (EBotException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", e.getMessage()));
+    }
+}
+
+@DeleteMapping("/{botId}")
+public ResponseEntity<?> deleteBot(@PathVariable Long botId) {
+    try {
+        botService.deleteBot(botId);
+        return ResponseEntity.ok().build();
+    } catch (EBotException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", e.getMessage()));
+    }
+}
+
+}    

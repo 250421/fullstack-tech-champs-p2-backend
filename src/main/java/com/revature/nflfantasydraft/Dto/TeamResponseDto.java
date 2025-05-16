@@ -13,4 +13,14 @@ public class TeamResponseDto {
     private String wr;
     private String te;
     private String k;
-}
+    private Boolean isPlayerDrafted;
+
+
+    // New fields for bot teams
+    private Long botId;
+    private Long leagueId;
+    private String difficultyLevel;
+    private String strategy;
+    private Boolean isBot;
+    private String imgUrl;
+}  

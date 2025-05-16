@@ -4,4 +4,4 @@ public class ETeamException extends RuntimeException {
     public ETeamException(String message) {
         super(message);
     }
-}
+}  

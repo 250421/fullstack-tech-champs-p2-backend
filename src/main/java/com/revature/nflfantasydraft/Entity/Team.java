@@ -12,6 +12,9 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long teamId;
 
+    @Column(name = "img_url")
+    private String imgUrl;
+
     @Column(name = "team_name", nullable = false)
     private String teamName;
 
@@ -33,4 +36,18 @@ public class Team {
 
     @Column(name = "k")
     private String k; // Format: "Name,Team,FantasyPoints"
-}
+
+    // New fields for bot functionality
+
+    @Column(name = "is_bot")
+    private Boolean isBot = false;
+
+    @ManyToOne
+    @JoinColumn(name = "bot_id")
+    @OneToOne(mappedBy = "team", cascade = CascadeType.ALL)
+    private Bot bot;
+
+    @Column(name = "league_id")
+    private Long leagueId;
+
+}  

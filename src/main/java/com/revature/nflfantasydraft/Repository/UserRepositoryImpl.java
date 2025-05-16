@@ -79,5 +79,61 @@ public Optional<User> findById(Integer userId) {
             rs.getString("PASSWORD"),
             rs.getString("ROLE")
         );
-    });
+    }
+    
+    );
+
+
+    @Override
+public Optional<User> findByEmail(String email) {
+    try {
+        User user = jdbcTemplate.queryForObject(
+            SQL_FIND_BY_EMAIL, 
+            userRowMapper, 
+            email
+        );
+        return Optional.ofNullable(user);
+    } catch (EmptyResultDataAccessException e) {
+        return Optional.empty();
+    }
 }
+@Override
+public User save(User newBotUser) {
+    try {
+        // Hash the password if it's not already hashed
+        if (newBotUser.getPassword() != null && !newBotUser.getPassword().startsWith("$2a$")) {
+            String hashedPassword = BCrypt.hashpw(newBotUser.getPassword(), BCrypt.gensalt(10));
+            newBotUser.setPassword(hashedPassword);
+        }
+        
+        if (newBotUser.getUserId() == null) {
+            // Insert new user
+            String sql = "INSERT INTO users(USERNAME, EMAIL, PASSWORD, ROLE) VALUES(?, ?, ?, ?) RETURNING USER_ID";
+            Integer userId = jdbcTemplate.queryForObject(
+                sql,
+                Integer.class,
+                newBotUser.getUserName(),
+                newBotUser.getEmail(),
+                newBotUser.getPassword(),
+                newBotUser.getRole()
+            );
+            newBotUser.setUserId(userId);
+            return newBotUser;
+        } else {
+            // Update existing user
+            String sql = "UPDATE users SET USERNAME = ?, EMAIL = ?, PASSWORD = ?, ROLE = ? WHERE USER_ID = ?";
+            jdbcTemplate.update(
+                sql,
+                newBotUser.getUserName(),
+                newBotUser.getEmail(),
+                newBotUser.getPassword(),
+                newBotUser.getRole(),
+                newBotUser.getUserId()
+            );
+            return newBotUser;
+        }
+    } catch (Exception e) {
+        throw new RuntimeException("Failed to save user: " + e.getMessage(), e);
+    }
+}
+}  

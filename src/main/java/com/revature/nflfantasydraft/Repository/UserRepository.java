@@ -16,4 +16,8 @@ public interface UserRepository  {
     Integer getCountByEmail(String email);
     
     Optional<User> findById(Integer userId);
-}
+
+     Optional<User> findByEmail(String email);
+
+     User save(User newBotUser);
+}  

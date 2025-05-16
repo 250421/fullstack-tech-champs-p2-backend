@@ -2,6 +2,7 @@ package com.revature.nflfantasydraft.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -15,14 +16,18 @@ public class SecurityConfig {
         http
         .csrf(csrf -> csrf
         .ignoringRequestMatchers("/api/users/register", "/api/users/login", "/api/players/**",
-        "/api/teams/**")
+        "/api/teams/**", "/api/users/bot/**")
     )
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(HttpMethod.DELETE, "/api/users/bot/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/teams/league/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/players/not-drafted").permitAll()
                 .requestMatchers("/api/players/**", "/api/users/register",
-                 "/api/users/login", "/api/users/me", "/api/teams/**", "/api/players/position/**").permitAll()  // Allow public access
+                 "/api/users/login", "/api/users/me", "/api/teams/**", "/api/players/position/**",
+           "/api/users/bot/**").permitAll()  // Allow public access
                 
                  .anyRequest().authenticated()  // Secure other endpoints
             );
         return http.build();
     }
-}
+}   

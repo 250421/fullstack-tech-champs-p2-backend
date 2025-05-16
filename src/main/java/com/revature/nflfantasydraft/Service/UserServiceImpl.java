@@ -60,4 +60,4 @@ public Optional<User> getUserById(int userId) {
     return userRepository.findById(userId); // Just pass through the Optional
 }
 
-}
+}  
