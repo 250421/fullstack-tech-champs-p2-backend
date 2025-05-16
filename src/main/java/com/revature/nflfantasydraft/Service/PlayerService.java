@@ -1,5 +1,6 @@
 package com.revature.nflfantasydraft.Service;
 import com.revature.nflfantasydraft.Dto.ApiPlayerDto;
+import com.revature.nflfantasydraft.Dto.UndraftedPlayerDto;
 import com.revature.nflfantasydraft.Entity.Player;
 import com.revature.nflfantasydraft.Repository.PlayerRepository;
 
@@ -130,5 +131,22 @@ public List<Player> getPlayersByPositionWithTotalPoints(String position) {
                       .setParameter("position", position)
                       .getResultList();
 }
+
+
+public List<UndraftedPlayerDto> getAllUndraftedPlayers() {
+    List<Object[]> results = playerRepository.findByIsDraftedFalse();
+    return results.stream()
+            .map(result -> {
+                UndraftedPlayerDto dto = new UndraftedPlayerDto();
+                dto.setPlayerApiId((Integer) result[0]);
+                dto.setName((String) result[1]);
+                dto.setPosition((String) result[2]);
+                dto.setFantasyPoints((Double) result[3]);
+                dto.setDrafted((Boolean) result[4]);
+                return dto;
+            })
+            .collect(Collectors.toList());
+}
+  
 
 }

@@ -53,6 +53,11 @@ List<Object[]> findPlayerWithTotalPointsByApiId(@Param("playerApiId") Integer pl
     @Modifying
     @Query("UPDATE Player p SET p.isDrafted = true WHERE p.playerApiId = :playerApiId")
     void markPlayerAsDrafted(@Param("playerApiId") Integer playerApiId);
+
+    @Query("SELECT p.playerApiId, p.name, p.position, p.fantasyPoints, p.isDrafted " +
+           "FROM Player p WHERE p.isDrafted = false")
+    List<Object[]> findByIsDraftedFalse();
+
 }
  
  
