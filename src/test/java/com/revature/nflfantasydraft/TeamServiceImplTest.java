@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
@@ -25,6 +26,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,6 +73,8 @@ class TeamServiceImplTest {
         player2.setTeam("KC");
         player2.setPosition("QB");
         player2.setFantasyPoints(30.0);
+
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -87,7 +91,7 @@ void addPlayerToTeam_Success() {
 
     // 4. Verify results
     assertNotNull(result);
-    assertEquals("Patrick Mahomes,KC,55.0", result.getQb());
+    assertEquals("Patrick Mahomes, KC, 19790, 55.0", result.getQb());
     
     // 5. Verify interactions
     verify(teamRepository).save(team);
@@ -181,4 +185,110 @@ void addPlayerToTeam_Success() {
         assertEquals(1, result.size());
         assertEquals("Test Team", result.get(0).getTeamName());
     }
+
+    @Test
+    void createTeam_ShouldSetLeagueId() {
+        TeamRequestDto request = new TeamRequestDto();
+        request.setTeamName("Test Team");
+        request.setUserId(1);
+        request.setLeagueId(5L);
+
+        User user = new User();
+        user.setUserId(1);
+
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+        when(teamRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        TeamResponseDto result = teamService.createTeam(request);
+        
+        assertEquals(5L, result.getLeagueId());
+    }
+
+    @Test
+    void getTeamsByLeagueId_ShouldFilterByLeague() {
+        Team team1 = new Team();
+        team1.setLeagueId(1L);
+        Team team2 = new Team();
+        team2.setLeagueId(2L);
+
+        when(teamRepository.findByLeagueId(1L)).thenReturn(Collections.singletonList(team1));
+        
+        List<TeamResponseDto> result = teamService.getTeamsByLeagueId(1L);
+        
+        assertEquals(1, result.size());
+    }
+
+    @Test
+void addPlayerToTeam_ShouldMarkPlayerAsDrafted() {
+    // 1. Setup test team and user
+    Team team = new Team();
+    User user = new User();
+    user.setUserId(1);
+    team.setUser(user);
+
+    // 2. Create test players with fantasy points
+    Player player1 = new Player();
+    player1.setPlayerApiId(123);
+    player1.setPosition("QB");
+    player1.setFantasyPoints(25.0);
+    player1.setIsDrafted(false); // Initially undrafted
+
+    Player player2 = new Player();
+    player2.setPlayerApiId(123); // Same API ID
+    player2.setPosition("QB");
+    player2.setFantasyPoints(30.0);
+    player2.setIsDrafted(false);
+
+    // 3. Configure mocks
+    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    when(playerRepository.findAllByPlayerApiId(123)).thenReturn(Arrays.asList(player1, player2));
+    when(teamRepository.save(any(Team.class))).thenAnswer(invocation -> {
+        Team savedTeam = invocation.getArgument(0);
+        // Verify player was marked as drafted
+        assertTrue(player1.getIsDrafted());
+        assertTrue(player2.getIsDrafted());
+        return savedTeam;
+    });
+
+    // 4. Execute
+    Team result = teamService.addPlayerToTeam(1L, "QB", 123, 1);
+
+    // 5. Verify
+    assertNotNull(result);
+    verify(playerRepository, times(2)).save(any(Player.class)); // Each player should be saved
+}
+    
+    @Test
+    void getTeamsByLeagueId_ShouldReturnTeams() {
+        // 1. Create test data
+        Team team = new Team();
+        team.setTeamId(1L);
+        team.setTeamName("Test Team");
+        team.setLeagueId(5L);
+
+        // 2. Configure mock
+        when(teamRepository.findByLeagueId(5L)).thenReturn(Collections.singletonList(team));
+
+        // 3. Execute test
+        List<TeamResponseDto> result = teamService.getTeamsByLeagueId(5L);
+
+        // 4. Verify results
+        assertEquals(1, result.size());
+        assertEquals(5L, result.get(0).getLeagueId());
+        assertEquals("Test Team", result.get(0).getTeamName());
+        
+        // 5. Verify interaction
+        verify(teamRepository).findByLeagueId(5L);
+    }
+
+    @Test
+    void getTeamsByLeagueId_ShouldReturnEmptyListWhenNoTeams() {
+        // Configure mock to return empty list
+        when(teamRepository.findByLeagueId(anyLong())).thenReturn(Collections.emptyList());
+
+        List<TeamResponseDto> result = teamService.getTeamsByLeagueId(99L);
+        
+        assertTrue(result.isEmpty());
+    }
+
 }

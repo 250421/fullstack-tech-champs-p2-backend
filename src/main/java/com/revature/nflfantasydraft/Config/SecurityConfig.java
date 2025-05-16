@@ -20,6 +20,7 @@ public class SecurityConfig {
     )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.DELETE, "/api/users/bot/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/teams/league/**").permitAll()
                 .requestMatchers("/api/players/**", "/api/users/register",
                  "/api/users/login", "/api/users/me", "/api/teams/**", "/api/players/position/**",
            "/api/users/bot/**").permitAll()  // Allow public access

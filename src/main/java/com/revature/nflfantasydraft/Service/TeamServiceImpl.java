@@ -42,6 +42,7 @@ public TeamResponseDto createTeam(TeamRequestDto teamRequestDto) {
     Team team = new Team();
     team.setTeamName(teamRequestDto.getTeamName());
     team.setUser(user);
+    team.setLeagueId(teamRequestDto.getLeagueId());
     team.setQb(teamRequestDto.getQb());
     team.setRb(teamRequestDto.getRb());
     team.setWr(teamRequestDto.getWr());
@@ -156,9 +157,10 @@ public Team addPlayerToTeam(Long teamId, String position, Integer playerApiId, I
     }
 
     // 4. Format the player info string
-    String playerInfo = String.format("%s,%s,%.1f", 
+    String playerInfo = String.format("%s, %s, %s, %.1f", 
         player.getName(), 
         player.getTeam(), 
+        player.getPlayerApiId(),
         totalPoints);
 
     // Update the appropriate position
@@ -220,6 +222,12 @@ public List<Player> getPlayersByPositionWithTotalPoints(String position) {
         .collect(Collectors.toList());
 }
 
-       
+        @Override
+        public List<TeamResponseDto> getTeamsByLeagueId(Long leagueId) {
+            List<Team> teams = teamRepository.findByLeagueId(leagueId);
+            return teams.stream()
+                    .map(this::convertToResponseDto)
+                    .collect(Collectors.toList());
+        }
 
 }  

@@ -219,9 +219,10 @@ public TeamResponseDto botPickPlayer(BotPickPlayerRequestDto botPickPlayerReques
         // Format player info - ensure numeric formatting
         String playerInfo;
         try {
-            playerInfo = String.format("%s,%s,%.1f",
+            playerInfo = String.format("%s, %s, %s, %.1f",
                 playerName != null ? playerName : "Unknown",
                 playerTeam != null ? playerTeam : "Unknown",
+                playerApiId != null ? playerApiId : "Unknown",
                 totalPoints);
         } catch (IllegalFormatConversionException e) {
             logger.error("Formatting failed - totalPoints: {}", totalPoints);
@@ -331,8 +332,9 @@ public TeamResponseDto botPickPlayer(BotPickPlayerRequestDto botPickPlayerReques
             bot.setTeamId(null);
             botRepository.save(bot);
         });
-    }
 
+    }
+    
 }
 
    

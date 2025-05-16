@@ -150,4 +150,10 @@ public ResponseEntity<TeamResponseDto> addPlayerToTeam(
     return ResponseEntity.ok(teamMapper.toResponseDto(updatedTeam));
 }
 
+    @GetMapping("/league/{leagueId}")
+    public ResponseEntity<List<TeamResponseDto>> getTeamsByLeagueId(@PathVariable Long leagueId) {
+        List<TeamResponseDto> teams = teamService.getTeamsByLeagueId(leagueId);
+        return ResponseEntity.ok(teams);
+    }
+
 }   

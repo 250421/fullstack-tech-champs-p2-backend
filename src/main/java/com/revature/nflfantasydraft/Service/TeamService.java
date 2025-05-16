@@ -15,4 +15,5 @@ public interface TeamService {
     Team addPlayerToTeam(Long teamId, String position, Integer playerApiId, Integer userId);
     TeamResponseDto convertToResponseDto(Team savedTeam);
     List<Player> getPlayersByPositionWithTotalPoints(String position);
+    List<TeamResponseDto> getTeamsByLeagueId(Long leagueId);
 }  
