@@ -24,6 +24,7 @@ public class NflFantasyDraftGameApplication {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		CorsConfiguration config = new CorsConfiguration();
 		config.addAllowedOrigin("http://localhost:5173");
+		config.addAllowedOrigin("http://3.20.227.225:3000");
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");
 		config.setAllowCredentials(true);
