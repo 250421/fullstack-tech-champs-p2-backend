@@ -12,6 +12,5 @@ public class TeamRequestDto {
     private String wr;
     private String te;
     private String k;
-    private Long leagueId;
 }
   
