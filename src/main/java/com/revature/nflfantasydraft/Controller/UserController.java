@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.revature.nflfantasydraft.Entity.User;
 import com.revature.nflfantasydraft.Service.Constants;
 import com.revature.nflfantasydraft.Service.UserService;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,6 +32,14 @@ public class UserController {
 
     @Autowired
     UserService userService;
+
+    @GetMapping("/testing")
+    public ResponseEntity<?> ping() {
+        System.out.println("INSIDE TESTING HERE");
+        Map<String, Boolean> map = new HashMap<>();
+        map.put("your connected...", true);
+        return new ResponseEntity<>(map, HttpStatus.OK);
+    }
 
     
     @GetMapping("/me")
