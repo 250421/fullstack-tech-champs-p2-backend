@@ -47,6 +47,7 @@ public class Team {
     private Bot bot;
 
     @Column(name = "league_id")
+    @JoinColumn(name = "league_id", nullable = false)
     private Long leagueId;
 
 }  

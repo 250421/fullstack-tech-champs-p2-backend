@@ -1,5 +1,11 @@
 package com.revature.nflfantasydraft.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.revature.nflfantasydraft.Dto.TeamRequestDto;
 import com.revature.nflfantasydraft.Dto.TeamResponseDto;
 import com.revature.nflfantasydraft.Entity.Player;
@@ -9,14 +15,6 @@ import com.revature.nflfantasydraft.Exceptions.ETeamException;
 import com.revature.nflfantasydraft.Repository.PlayerRepository;
 import com.revature.nflfantasydraft.Repository.TeamRepository;
 import com.revature.nflfantasydraft.Repository.UserRepository;
-
-
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TeamServiceImpl implements TeamService {
@@ -33,19 +31,28 @@ public class TeamServiceImpl implements TeamService {
     
     @Override
 public TeamResponseDto createTeam(TeamRequestDto teamRequestDto) {
+    System.out.println("INSIDE TEAM SERVICE");
+    System.out.println(teamRequestDto.getTeamName());
     // Validate user exists
     User user = userRepository.findById(teamRequestDto.getUserId())
         .orElseThrow(() -> new ETeamException("User not found"));
+
+    System.out.println("About to get fields");
     
     // Create and save team
     Team team = new Team();
     team.setTeamName(teamRequestDto.getTeamName());
     team.setUser(user);
+    team.setLeagueId(teamRequestDto.getLeagueId());
     team.setQb(teamRequestDto.getQb());
     team.setRb(teamRequestDto.getRb());
     team.setWr(teamRequestDto.getWr());
     team.setTe(teamRequestDto.getTe());
     team.setK(teamRequestDto.getK());
+
+    System.out.println("About to save");
+
+    System.out.println(team);
     
     Team savedTeam = teamRepository.save(team);
     
@@ -195,5 +202,13 @@ public List<Player> getPlayersByPositionWithTotalPoints(String position) {
         .sorted((p1, p2) -> Double.compare(p2.getFantasyPoints(), p1.getFantasyPoints()))
         .collect(Collectors.toList());
 }
+
+    @Override
+    public List<TeamResponseDto> getTeamsByLeagueId(Long leagueId) {
+        List<Team> teams = teamRepository.findByLeagueId(leagueId);
+        return teams.stream()
+                .map(this::convertToResponseDto)
+                .collect(Collectors.toList());
+    }  
 
 }  
