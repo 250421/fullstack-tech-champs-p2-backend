@@ -111,26 +111,26 @@ public ResponseEntity<?> getAllBotTeams() {
         return ResponseEntity.ok(botService.botPickPlayer(botPickPlayerRequestDto));
     }
 
-@DeleteMapping("/teams/{teamId}")
-public ResponseEntity<?> deleteBotTeam(@PathVariable Long teamId) {
-    try {
-        botService.deleteBotTeam(teamId);
-        return ResponseEntity.ok().build();
-    } catch (EBotException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", e.getMessage()));
-    }
-}
+// @DeleteMapping("/teams/{teamId}")
+// public ResponseEntity<?> deleteBotTeam(@PathVariable Long teamId) {
+//     try {
+//         botService.deleteBotTeam(teamId);
+//         return ResponseEntity.ok().build();
+//     } catch (EBotException e) {
+//         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                 .body(Map.of("error", e.getMessage()));
+//     }
+// }
 
-@DeleteMapping("/{botId}")
-public ResponseEntity<?> deleteBot(@PathVariable Long botId) {
-    try {
-        botService.deleteBot(botId);
-        return ResponseEntity.ok().build();
-    } catch (EBotException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of("error", e.getMessage()));
-    }
-}
+// @DeleteMapping("/{botId}")
+// public ResponseEntity<?> deleteBot(@PathVariable Long botId) {
+//     try {
+//         botService.deleteBot(botId);
+//         return ResponseEntity.ok().build();
+//     } catch (EBotException e) {
+//         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                 .body(Map.of("error", e.getMessage()));
+//     }
+// }
 
 }    
