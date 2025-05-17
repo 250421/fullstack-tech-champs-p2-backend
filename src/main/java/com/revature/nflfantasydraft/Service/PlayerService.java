@@ -91,6 +91,7 @@ public class PlayerService {
         }
     }
 
+    
 
 private Long determineTeamId(String teamAbbreviation) {
 // Implement your team ID lookup logic here
@@ -134,18 +135,7 @@ public List<Player> getPlayersByPositionWithTotalPoints(String position) {
 
 
 public List<UndraftedPlayerDto> getAllUndraftedPlayers() {
-    List<Object[]> results = playerRepository.findByIsDraftedFalse();
-    return results.stream()
-            .map(result -> {
-                UndraftedPlayerDto dto = new UndraftedPlayerDto();
-                dto.setPlayerApiId((Integer) result[0]);
-                dto.setName((String) result[1]);
-                dto.setPosition((String) result[2]);
-                dto.setFantasyPoints((Double) result[3]);
-                dto.setDrafted((Boolean) result[4]);
-                return dto;
-            })
-            .collect(Collectors.toList());
+    return playerRepository.findUndraftedPlayers();
 }
   
 

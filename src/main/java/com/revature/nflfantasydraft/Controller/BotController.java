@@ -78,12 +78,16 @@ public ResponseEntity<?> getAllBotTeams() {
 
 
     @PostMapping("/{teamId}/pick-player")
-    public ResponseEntity<TeamResponseDto> botPickPlayer(
-            @PathVariable Long teamId,
-            @RequestBody BotPickPlayerRequestDto botPickPlayerRequestDto) {
-        botPickPlayerRequestDto.setTeamId(teamId);
-        return ResponseEntity.ok(botService.botPickPlayer(botPickPlayerRequestDto));
+public ResponseEntity<TeamResponseDto> botPickPlayer(
+        @PathVariable Long teamId) {
+    try {
+        TeamResponseDto response = botService.botPickPlayer(teamId);
+        return ResponseEntity.ok(response);
+    } catch (EBotException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(null);
     }
+}
 
 @DeleteMapping("/teams/{teamId}")
 public ResponseEntity<?> deleteBotTeam(@PathVariable Long teamId) {

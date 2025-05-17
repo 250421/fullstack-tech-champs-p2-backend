@@ -12,10 +12,13 @@ import com.revature.nflfantasydraft.Repository.PlayerRepository;
 import com.revature.nflfantasydraft.Repository.TeamRepository;
 import com.revature.nflfantasydraft.Repository.UserRepository;
 import com.theokanning.openai.completion.CompletionRequest;
+import com.theokanning.openai.completion.chat.ChatCompletionRequest;
+import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
 import org.springframework.stereotype.Service;
 
-import java.util.IllegalFormatConversionException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -140,60 +143,84 @@ public TeamResponseDto createBotTeam(BotTeamRequestDto botTeamRequestDto) {
 }
 
 @Override
-public TeamResponseDto botPickPlayer(BotPickPlayerRequestDto botPickPlayerRequestDto) {
+public TeamResponseDto botPickPlayer(Long teamId) {
     // Initialize OpenAI service
     OpenAiService openAiService = new OpenAiService(openAIConfig.getApiKey());
     
     // Fetch bot and team
-    Bot bot = botRepository.findById(botPickPlayerRequestDto.getBotId())
-            .orElseThrow(() -> new EBotException("Bot not found"));
-    
-    Team team = teamRepository.findById(botPickPlayerRequestDto.getTeamId())
+    Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new EBotException("Team not found"));
     
-    if (!team.getIsBot()) {
+    if (!Boolean.TRUE.equals(team.getIsBot())) {
         throw new EBotException("Only bot teams can use this feature");
     }
     
-    // Get available players
-    List<Player> availablePlayers = teamService.getPlayersByPositionWithTotalPoints(
-            botPickPlayerRequestDto.getPosition());
+    // Get all undrafted players as DTOs
+    List<UndraftedPlayerDto> availablePlayers = playerRepository.findUndraftedPlayers();
     
     if (availablePlayers.isEmpty()) {
-        throw new EBotException("No available players for position: " + 
-            botPickPlayerRequestDto.getPosition());
+        throw new EBotException("No available undrafted players");
     }
     
-    // Build the prompt
+    // Determine which positions still need players
+    List<String> neededPositions = getNeededPositions(team);
+    if (neededPositions.isEmpty()) {
+        throw new EBotException("All positions are already filled");
+    }
+    
+    // Filter players to only include needed positions
+    List<UndraftedPlayerDto> eligiblePlayers = availablePlayers.stream()
+            .filter(p -> neededPositions.contains(p.getPosition().toUpperCase()))
+            .collect(Collectors.toList());
+    
+    if (eligiblePlayers.isEmpty()) {
+        throw new EBotException("No available players for needed positions: " + neededPositions);
+    }
+    
+    // Build the prompt for AI to select a player
     String prompt = String.format(
-        "Given the following bot strategy: %s (difficulty: %s), " +
-        "select the best %s from these players with their total fantasy points: %s. " +
-        "Return ONLY the numeric playerApiId with NO additional text.",
-        bot.getStrategy(),
-        bot.getDifficultyLevel(),
-        botPickPlayerRequestDto.getPosition(),
-        availablePlayers.stream()
-            .map(p -> String.format("%s (ID: %d, Points: %.1f)", 
-                p.getName(), p.getPlayerApiId(), p.getFantasyPoints()))
-            .collect(Collectors.joining(", "))
+        "Strategy: %s\nDifficulty: %s\nNeeded Positions: %s\nAvailable Players:\n%s\n" +
+        "Rules: 1) Only pick players for needed positions\n" +
+        "2) Return ONLY their playerApiId as a number.",
+        team.getBot().getStrategy(),
+        team.getBot().getDifficultyLevel(),
+        String.join(", ", neededPositions),
+        eligiblePlayers.stream()
+            .map(p -> String.format("- %s (ID: %d, Pos: %s, Tea: %s, Pts: %.1f)", 
+                p.getName(), p.getPlayerApiId(), p.getTeam(), p.getPosition(), p.getFantasyPoints()))
+            .collect(Collectors.toList())
     );
     
     // Get AI response
-    CompletionRequest completionRequest = CompletionRequest.builder()
-            .prompt(prompt)
-            .model("gpt-3.5-turbo-instruct")
-            .maxTokens(10)
-            .temperature(0.5)
-            .build();
-    
-    String response = openAiService.createCompletion(completionRequest)
-            .getChoices()
-            .get(0)
-            .getText()
-            .trim();
+    ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest();
+    chatCompletionRequest.setModel("gpt-4.1-nano");
+    chatCompletionRequest.setMessages(Arrays.asList(
+        new ChatMessage("system", "You are an NFL fantasy draft assistant. Return ONLY the numeric playerApiId for a player in a needed position."),
+        new ChatMessage("user", prompt)
+    ));
+    chatCompletionRequest.setMaxTokens(10);
+    chatCompletionRequest.setTemperature(0.5);
+
+    String response = openAiService.createChatCompletion(chatCompletionRequest)
+        .getChoices()
+        .get(0)
+        .getMessage()
+        .getContent()
+        .trim();
     
     try {
         Integer playerApiId = Integer.parseInt(response);
+        
+        // Find the selected player
+        UndraftedPlayerDto selectedPlayer = eligiblePlayers.stream()
+            .filter(p -> p.getPlayerApiId().equals(playerApiId))
+            .findFirst()
+            .orElseThrow(() -> new EBotException("Selected player not found or not eligible"));
+        
+        // Verify position is still needed (race condition check)
+        if (!neededPositions.contains(selectedPlayer.getPosition().toUpperCase())) {
+            throw new EBotException("Selected position " + selectedPlayer.getPosition() + " is already filled");
+        }
         
         // Get all player records for this API ID and mark them as drafted
         List<Player> players = playerRepository.findAllByPlayerApiId(playerApiId);
@@ -202,53 +229,52 @@ public TeamResponseDto botPickPlayer(BotPickPlayerRequestDto botPickPlayerReques
             playerRepository.save(player);
         });
 
-        // Get aggregated player data
-        List<Object[]> playerData = playerRepository.findPlayerSummaryByApiId(playerApiId);
+        // Format player info
+        String playerInfo = String.format("%s, %s, %s, %.1f",
+            selectedPlayer.getName(),
+            selectedPlayer.getTeam(),
+            selectedPlayer.getPlayerApiId(),
+            selectedPlayer.getFantasyPoints());
         
-        if (playerData.isEmpty()) {
-            throw new EBotException("Selected player not found: " + playerApiId);
-        }
-        
-        Object[] playerSummary = playerData.get(0);
-        
-        // Safely extract values with explicit type conversion
-        String playerName = (String) playerSummary[0];
-        String playerTeam = (String) playerSummary[1];
-        double totalPoints = ((Number) playerSummary[2]).doubleValue(); // Critical fix
-        
-        // Format player info - ensure numeric formatting
-        String playerInfo;
-        try {
-            playerInfo = String.format("%s, %s, %s, %.1f",
-                playerName != null ? playerName : "Unknown",
-                playerTeam != null ? playerTeam : "Unknown",
-                playerApiId != null ? playerApiId : "Unknown",
-                totalPoints);
-        } catch (IllegalFormatConversionException e) {
-            logger.error("Formatting failed - totalPoints: {}", totalPoints);
-            throw new EBotException("Player data formatting error");
-        }
-        
-        // Update team position
-        switch (botPickPlayerRequestDto.getPosition().toUpperCase()) {
+        // Update the appropriate position
+        switch (selectedPlayer.getPosition().toUpperCase()) {
             case "QB": team.setQb(playerInfo); break;
             case "RB": team.setRb(playerInfo); break;
             case "WR": team.setWr(playerInfo); break;
             case "TE": team.setTe(playerInfo); break;
             case "K": team.setK(playerInfo); break;
-            default: throw new EBotException("Invalid position");
+            default: throw new EBotException("Invalid position: " + selectedPlayer.getPosition());
         }
         
         Team updatedTeam = teamRepository.save(team);
-
-        logger.debug("Player Summary: name={}, team={}, points={}", 
-        playerName, playerTeam, totalPoints);
-
         return teamService.convertToResponseDto(updatedTeam);
         
     } catch (NumberFormatException e) {
         throw new EBotException("Invalid player ID from AI: " + response);
     }
+}
+
+// Helper method to determine which positions need players
+private List<String> getNeededPositions(Team team) {
+    List<String> neededPositions = new ArrayList<>();
+    
+    if (team.getQb() == null || team.getQb().isEmpty()) {
+        neededPositions.add("QB");
+    }
+    if (team.getRb() == null || team.getRb().isEmpty()) {
+        neededPositions.add("RB");
+    }
+    if (team.getWr() == null || team.getWr().isEmpty()) {
+        neededPositions.add("WR");
+    }
+    if (team.getTe() == null || team.getTe().isEmpty()) {
+        neededPositions.add("TE");
+    }
+    if (team.getK() == null || team.getK().isEmpty()) {
+        neededPositions.add("K");
+    }
+    
+    return neededPositions;
 }
 
     private BotResponseDto convertToDto(Bot bot) {
