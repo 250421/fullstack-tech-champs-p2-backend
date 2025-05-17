@@ -30,6 +30,7 @@ public class SecurityConfig {
             // Allows GET requests to "/api/players/not-drafted" without authentication
             .requestMatchers(HttpMethod.GET, "/api/players/not-drafted").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/teams/leaderboard").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/teams/team1/**").permitAll()
             // Allows public access to the specified endpoints
             .requestMatchers(
                 "/api/players/**", 
