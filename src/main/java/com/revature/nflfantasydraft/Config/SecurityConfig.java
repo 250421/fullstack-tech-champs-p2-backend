@@ -2,12 +2,13 @@ package com.revature.nflfantasydraft.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configuration // Marks this class as a configuration class for Spring
-public class SecurityConfig {
+
+
+@Configuration
+ public class SecurityConfig {
     
     @Bean // Defines a bean for the SecurityFilterChain
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -48,3 +49,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+
