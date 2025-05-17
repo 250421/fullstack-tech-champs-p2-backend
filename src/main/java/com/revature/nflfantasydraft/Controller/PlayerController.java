@@ -1,4 +1,5 @@
 package com.revature.nflfantasydraft.Controller;
+import com.revature.nflfantasydraft.Dto.UndraftedPlayerDto;
 import com.revature.nflfantasydraft.Entity.Player;
 import com.revature.nflfantasydraft.Service.PlayerService;
 
@@ -32,6 +33,12 @@ public class PlayerController {
     @GetMapping("/position/{position}/total-points")
 public ResponseEntity<List<Player>> getPlayersByPositionWithTotalPoints(@PathVariable String position) {
     return ResponseEntity.ok(playerService.getPlayersByPositionWithTotalPoints(position));
+}
+
+@GetMapping("/not-drafted")
+public ResponseEntity<List<UndraftedPlayerDto>> getAllUndraftedPlayers() {
+    List<UndraftedPlayerDto> players = playerService.getAllUndraftedPlayers();
+    return ResponseEntity.ok(players);
 }
 
 }

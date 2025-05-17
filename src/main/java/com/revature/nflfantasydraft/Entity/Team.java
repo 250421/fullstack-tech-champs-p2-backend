@@ -44,6 +44,7 @@ public class Team {
 
     @ManyToOne
     @JoinColumn(name = "bot_id")
+    @OneToOne(mappedBy = "team", cascade = CascadeType.ALL)
     private Bot bot;
 
     @Column(name = "league_id")

@@ -42,6 +42,7 @@ class PlayerServiceTest {
     private PlayerService playerService;
 
     private ApiPlayerDto apiPlayerDto;
+
     private Player playerEntity;
 
     @BeforeEach
@@ -67,6 +68,8 @@ class PlayerServiceTest {
         playerEntity.setName("Dak Prescott");
         playerEntity.setPosition("QB");
         playerEntity.setFantasyPoints(25.7);
+
+        
     }
 
     @Test
@@ -198,4 +201,86 @@ class PlayerServiceTest {
         assertEquals("QB", result.getPosition());
         assertEquals(25.7, result.getFantasyPoints());
     }
+
+    @Test
+void fetchAndSavePlayersForWeek_ShouldFilterDraftedPlayers() {
+    // 1. Setup test data - undrafted player from API
+    ApiPlayerDto apiPlayer = new ApiPlayerDto();
+    apiPlayer.setPlayerApiId(123);
+    apiPlayer.setPosition("QB");
+    apiPlayer.setFantasyPoints(25.0);
+    
+    // 2. Mock API response
+    ResponseEntity<ApiPlayerDto[]> response = new ResponseEntity<>(
+        new ApiPlayerDto[]{apiPlayer}, HttpStatus.OK);
+        
+    when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), 
+        isNull(), eq(ApiPlayerDto[].class))).thenReturn(response);
+    
+    // 3. Mock repository to say no players exist yet
+    when(playerRepository.findExistingPlayerIds(anyInt(), anyInt()))
+        .thenReturn(Collections.emptySet());
+    
+    // 4. Mock the save operation to return our player
+    Player savedPlayer = new Player();
+    savedPlayer.setPlayerApiId(123);
+    savedPlayer.setIsDrafted(false); // This should be false initially
+    when(playerRepository.saveAll(anyList())).thenAnswer(invocation -> {
+        List<Player> players = invocation.getArgument(0);
+        return players; // Return the same players that were passed in
+    });
+    
+    // 5. Execute
+    List<Player> result = playerService.fetchAndSavePlayersForWeek(2023, 1);
+    
+    // 6. Verify
+    assertFalse(result.isEmpty(), "Should return players");
+    assertFalse(result.get(0).getIsDrafted(), "New players should be undrafted");
+    verify(playerRepository).saveAll(anyList());
+}
+
+@Test
+void getPlayersByPositionWithTotalPoints_ShouldExcludeDraftedPlayers() {
+    // 1. Create test data
+    Player availablePlayer = new Player();
+    availablePlayer.setPlayerApiId(123);
+    availablePlayer.setName("Test QB");
+    availablePlayer.setTeam("TB");
+    availablePlayer.setPosition("QB");
+    availablePlayer.setFantasyPoints(25.0);
+    availablePlayer.setIsDrafted(false); // Must match entity field name
+
+    // 2. Create proper mock chain
+    @SuppressWarnings("unchecked")
+    TypedQuery<Player> typedQueryMock = mock(TypedQuery.class);
+    
+    // Use EXACT query string including "p.isDrafted"
+    String expectedQuery = "SELECT p.playerApiId, p.name, p.team, p.position, " +
+                         "SUM(p.fantasyPoints) as totalFantasyPoints " +
+                         "FROM Player p " +
+                         "WHERE p.position = :position " +
+                         "AND p.fantasyPoints > 0 " +
+                         "AND p.isDrafted = false " +  // MUST match entity field name
+                         "GROUP BY p.playerApiId, p.name, p.team, p.position " +
+                         "ORDER BY totalFantasyPoints DESC";
+    
+    when(entityManager.createQuery(expectedQuery, Player.class))
+        .thenReturn(typedQueryMock);
+    
+    when(typedQueryMock.setParameter("position", "QB"))
+        .thenReturn(typedQueryMock);
+    
+    when(typedQueryMock.getResultList())
+        .thenReturn(Collections.singletonList(availablePlayer));
+
+    // 3. Execute
+    List<Player> result = playerService.getPlayersByPositionWithTotalPoints("QB");
+
+    // 4. Verify
+    assertEquals(1, result.size());
+    assertEquals("QB", result.get(0).getPosition());
+    assertFalse(result.get(0).getIsDrafted()); // Must match getter name
+}
+
+
 }
