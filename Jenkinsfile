@@ -7,6 +7,8 @@ pipeline {
         DOCKER_TAG = "${BUILD_NUMBER}"
         DB_CREDS = credentials('DB_CREDENTIALS')
         DB_URL = credentials('DB_URL')
+        OPENAI_API_KEY = credentials('OPENAI_API_KEY')
+        SPORTSDATA_API_KEY = credentials('SPORTSDATA_API_KEY')
     }
 
     stages {
@@ -41,6 +43,8 @@ pipeline {
                         -e SPRING_DATASOURCE_URL=${DB_URL} \
                         -e SPRING_DATASOURCE_USERNAME=${DB_CREDS_USR} \
                         -e SPRING_DATASOURCE_PASSWORD=${DB_CREDS_PSW} \
+                        -e OPENAI_API_KEY=${OPENAI_API_KEY} \
+                        -e SPORTSDATA_API_KEY=${SPORTSDATA_API_KEY} \
                         --restart unless-stopped \
                         ${DOCKER_IMAGE}:${DOCKER_TAG}
                     """
