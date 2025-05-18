@@ -81,8 +81,7 @@ public ResponseEntity<?> getAllBotTeams() {
     @PostMapping("/{teamId}/pick-player")
     public ResponseEntity<Map<String, String>> botPickPlayer(@PathVariable Long teamId) {
         BotPickResponseDto response = botService.botPickPlayer(teamId);
-        String message = response.getTeam().getTeamName() + " has picked " + 
-                       response.getPickedPlayerName() + " (" + response.getPickedPosition() + ")";
+        String message =  response.getPickedPlayerName();
         return ResponseEntity.ok(Collections.singletonMap("message", message));
     }
 

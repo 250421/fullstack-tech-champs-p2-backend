@@ -258,8 +258,6 @@ public BotPickResponseDto  botPickPlayer(Long teamId) {
         BotPickResponseDto responseDto = new BotPickResponseDto();
         responseDto.setTeam(teamService.convertToResponseDto(updatedTeam));
         responseDto.setPickedPlayerName(selectedPlayer.getName());
-        responseDto.setPickedPlayerTeam(selectedPlayer.getTeam());
-        responseDto.setPickedPosition(selectedPlayer.getPosition());
 
         return responseDto;
         
