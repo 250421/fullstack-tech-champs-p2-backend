@@ -1,22 +1,35 @@
 package com.revature.nflfantasydraft.Controller;
 
-import com.revature.nflfantasydraft.Dto.*;
-import com.revature.nflfantasydraft.Exceptions.EBotException;
-import com.revature.nflfantasydraft.Service.BotService;
-
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.revature.nflfantasydraft.Dto.BotPickPlayerRequestDto;
+import com.revature.nflfantasydraft.Dto.BotRequestDto;
+import com.revature.nflfantasydraft.Dto.BotResponseDto;
+import com.revature.nflfantasydraft.Dto.BotTeamRequestDto;
+import com.revature.nflfantasydraft.Dto.TeamResponseDto;
+import com.revature.nflfantasydraft.Entity.Bot;
+import com.revature.nflfantasydraft.Exceptions.EBotException;
+import com.revature.nflfantasydraft.Service.BotService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/api/users/bot")
+@RequestMapping("/api/bots")
 public class BotController {
 
     @Autowired
@@ -29,9 +42,23 @@ public class BotController {
         return ResponseEntity.ok(botService.createBot(botRequestDto));
     }
 
+    @PutMapping("/{botId}")
+    public ResponseEntity<Bot> updateBot(@PathVariable Long botId, @RequestBody Bot bot, 
+                                         HttpServletRequest request) {
+        // Integer userId = (Integer) request.getAttribute("userId");
+        // Bot existingBot = botService.getBotById(botId);
+        // if (!existingBot.getUser().getUserId().equals(userId)) {
+        //     return ResponseEntity.status(403).build();
+        // }
+        bot.setBotId(botId);
+        return ResponseEntity.ok(botService.updateBot(bot));
+    }
+
     @PostMapping("/teams")
 public ResponseEntity<?> createBotTeam(@RequestBody BotTeamRequestDto botTeamRequestDto) {
+    System.out.println("INSIDE ADD TEAM HERE");
     try {
+        System.out.println("BEFORE SERVICE");
         TeamResponseDto response = botService.createBotTeam(botTeamRequestDto);
         return ResponseEntity.ok(response);
     } catch (EBotException e) {

@@ -7,6 +7,7 @@ import com.revature.nflfantasydraft.Entity.Player;
 import com.revature.nflfantasydraft.Entity.Team;
 import com.revature.nflfantasydraft.Entity.User;
 import com.revature.nflfantasydraft.Exceptions.EBotException;
+import com.revature.nflfantasydraft.Exceptions.ETeamException;
 import com.revature.nflfantasydraft.Repository.BotRepository;
 import com.revature.nflfantasydraft.Repository.PlayerRepository;
 import com.revature.nflfantasydraft.Repository.TeamRepository;
@@ -64,17 +65,38 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
+    public Bot getBotById(Long botId) {
+        return botRepository.findById(botId)
+            .orElseThrow(() -> new EBotException("Bot not found"));
+    }
+
+    @Override
+    public Bot updateBot(Bot bot) {
+        if (!botRepository.existsById(bot.getBotId())) {
+            throw new EBotException("Bot not found");
+        }
+        return botRepository.save(bot);
+    }
+
+    @Override
 public TeamResponseDto createBotTeam(BotTeamRequestDto botTeamRequestDto) {
+    System.out.println("INSIDE BOT SERVICE");
     try {
+        System.out.println("ABOUT TO CALL OPENAI");
         // Initialize OpenAI service using the configured API key
         OpenAiService openAiService = new OpenAiService(openAIConfig.getApiKey());
+        System.out.println("AFTER TO CALL OPENAI");
         
+        System.out.println("ABOUT TO FIND BOT");
         // Validate bot exists
         Bot bot = botRepository.findById(botTeamRequestDto.getBotId())
                 .orElseThrow(() -> new EBotException("Bot not found with ID: " + botTeamRequestDto.getBotId()));
         
+        System.out.println("AFTER TO FIND BOT");
+        
         // Generate team name using OpenAI if not provided
         String teamName = botTeamRequestDto.getTeamName();
+        System.out.println("AFTER TEAM NAME");
         if (teamName == null || teamName.isEmpty()) {
             try {
                 CompletionRequest completionRequest = CompletionRequest.builder()
@@ -93,11 +115,14 @@ public TeamResponseDto createBotTeam(BotTeamRequestDto botTeamRequestDto) {
                 throw new EBotException("Failed to generate team name: " + e.getMessage());
             }
         }
+
+        System.out.println("AFTER IF");
         
         // Create or get system user for bots with proper error handling
         User botUser;
         try {
             Optional<User> botUserOptional = userRepository.findByEmail("bot@system.com");
+            System.out.println("AFTER FIND BY EMAIL");
             botUser = botUserOptional.orElseGet(() -> {
                 User newBotUser = new User();
                 newBotUser.setUserName("BotUser");
@@ -106,13 +131,18 @@ public TeamResponseDto createBotTeam(BotTeamRequestDto botTeamRequestDto) {
                 newBotUser.setRole("BOT");
                 return userRepository.save(newBotUser);
             });
+            System.out.println("AFTER ALL");
         } catch (Exception e) {
+            System.out.println("INSIDE CATCH");
             throw new EBotException("Failed to create/find bot user: " + e.getMessage());
         }
+
+        System.out.println("PART 3");
         
         // Create and save team
         try {
             Team team = new Team();
+            System.out.println("PART 4");
             team.setTeamName(teamName);
             team.setUser(botUser);
             team.setBot(bot);
@@ -121,13 +151,19 @@ public TeamResponseDto createBotTeam(BotTeamRequestDto botTeamRequestDto) {
             team.setImgUrl("https://example.com/bot-team.png");
             
             Team savedTeam = teamRepository.save(team);
+
+            System.out.println("PART 6");
             
             // Update bot with team ID
             bot.setTeamId(savedTeam.getTeamId());
             botRepository.save(bot);
+
+            System.out.println("PART 7");
             
             return teamService.convertToResponseDto(savedTeam);
         } catch (Exception e) {
+
+            System.out.println("PART 8");
             throw new EBotException("Failed to create team: " + e.getMessage());
         }
     } catch (EBotException e) {
