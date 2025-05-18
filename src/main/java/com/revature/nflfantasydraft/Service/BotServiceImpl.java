@@ -217,7 +217,8 @@ public BotPickResponseDto  botPickPlayer(Long teamId) {
     String prompt = String.format(
         "Strategy: %s\nDifficulty: %s\nNeeded Positions: %s\nAvailable Players:\n%s\n" +
         "Rules: 1) Only pick players for needed positions\n" +
-        "2) Return ONLY their playerApiId as a number.",
+        "2) Return ONLY their playerApiId as a number."+
+        "3) Only pick players with > 0 fantasyPoints",
         team.getBot().getStrategy(),
         team.getBot().getDifficultyLevel(),
         String.join(", ", neededPositions),
