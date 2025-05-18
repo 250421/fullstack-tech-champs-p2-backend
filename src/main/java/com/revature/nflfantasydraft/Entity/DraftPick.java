@@ -24,17 +24,17 @@ public class DraftPick {
     @Column(name = "team_id", nullable = false)
     private Integer teamId;
 
-    @Column(name = "player_id")
-    private Integer playerId;
+    @Column(name = "player_data")
+    private String playerData;
 
     public DraftPick() {}
 
-    public DraftPick(Integer id, Integer leagueId, Integer pickNumber, Integer teamId, Integer playerId) {
+    public DraftPick(Integer id, Integer leagueId, Integer pickNumber, Integer teamId, String playerData) {
         this.id = id;
         this.leagueId = leagueId;
         this.pickNumber = pickNumber;
         this.teamId = teamId;
-        this.playerId = playerId;
+        this.playerData = playerData;
     }
 
     // Getters
@@ -54,8 +54,8 @@ public class DraftPick {
         return teamId;
     }
 
-    public Integer getPlayerId() {
-        return playerId;
+    public String getPlayerData() {
+        return playerData;
     }
 
     // Setters
@@ -75,7 +75,7 @@ public class DraftPick {
         this.teamId = teamId;
     }
 
-    public void setPlayerId(Integer playerId) {
-        this.playerId = playerId;
+    public void setPlayerData(String playerData) {
+        this.playerData = playerData;
     }
 }

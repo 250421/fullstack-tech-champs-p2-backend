@@ -22,7 +22,7 @@ CREATE TABLE draft_picks(
     league_id INTEGER NOT NULL,
     pick_number INTEGER NOT NULL,
     team_id INTEGER NOT NULL,
-    player_id INTEGER
+    player_data VARCHAR(100)
 );
 
 CREATE TABLE players(
