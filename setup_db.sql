@@ -52,8 +52,7 @@ CREATE TABLE teams(
     k VARCHAR(100),
     rb VARCHAR(100),
     wr VARCHAR(100),
-    te VARCHAR(100),
-    de VARCHAR(100)
+    te VARCHAR(100)
 );
 
 CREATE TABLE bots(
