@@ -105,11 +105,10 @@ public ResponseEntity<?> getAllBotTeams() {
 
 
     @PostMapping("/{teamId}/pick-player")
-    public ResponseEntity<TeamResponseDto> botPickPlayer(
-            @PathVariable Long teamId,
-            @RequestBody BotPickPlayerRequestDto botPickPlayerRequestDto) {
-        botPickPlayerRequestDto.setTeamId(teamId);
-        return ResponseEntity.ok(botService.botPickPlayer(botPickPlayerRequestDto));
+    public ResponseEntity<Map<String, String>> botPickPlayer(@PathVariable Long teamId) {
+        BotPickResponseDto response = botService.botPickPlayer(teamId);
+        String message =  response.getPickedPlayerName();
+        return ResponseEntity.ok(Collections.singletonMap("message", message));
     }
 
 @DeleteMapping("/teams/{teamId}")
