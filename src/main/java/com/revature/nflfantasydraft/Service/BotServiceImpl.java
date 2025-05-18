@@ -143,7 +143,7 @@ public TeamResponseDto createBotTeam(BotTeamRequestDto botTeamRequestDto) {
 }
 
 @Override
-public TeamResponseDto botPickPlayer(Long teamId) {
+public BotPickResponseDto  botPickPlayer(Long teamId) {
     // Initialize OpenAI service
     OpenAiService openAiService = new OpenAiService(openAIConfig.getApiKey());
     
@@ -229,12 +229,17 @@ public TeamResponseDto botPickPlayer(Long teamId) {
             playerRepository.save(player);
         });
 
-        // Format player info
+        // Calculate total points
+        Double totalPoints = players.stream()
+            .mapToDouble(Player::getFantasyPoints)
+            .sum();
+
+        // Update team
         String playerInfo = String.format("%s, %s, %s, %.1f",
             selectedPlayer.getName(),
             selectedPlayer.getTeam(),
             selectedPlayer.getPlayerApiId(),
-            selectedPlayer.getFantasyPoints());
+            totalPoints);
         
         // Update the appropriate position
         switch (selectedPlayer.getPosition().toUpperCase()) {
@@ -247,7 +252,16 @@ public TeamResponseDto botPickPlayer(Long teamId) {
         }
         
         Team updatedTeam = teamRepository.save(team);
-        return teamService.convertToResponseDto(updatedTeam);
+        
+
+        // Create and return response
+        BotPickResponseDto responseDto = new BotPickResponseDto();
+        responseDto.setTeam(teamService.convertToResponseDto(updatedTeam));
+        responseDto.setPickedPlayerName(selectedPlayer.getName());
+        responseDto.setPickedPlayerTeam(selectedPlayer.getTeam());
+        responseDto.setPickedPosition(selectedPlayer.getPosition());
+
+        return responseDto;
         
     } catch (NumberFormatException e) {
         throw new EBotException("Invalid player ID from AI: " + response);

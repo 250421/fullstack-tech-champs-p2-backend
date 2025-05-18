@@ -4,6 +4,7 @@ import com.revature.nflfantasydraft.Dto.*;
 import com.revature.nflfantasydraft.Exceptions.EBotException;
 import com.revature.nflfantasydraft.Service.BotService;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -78,16 +79,12 @@ public ResponseEntity<?> getAllBotTeams() {
 
 
     @PostMapping("/{teamId}/pick-player")
-public ResponseEntity<TeamResponseDto> botPickPlayer(
-        @PathVariable Long teamId) {
-    try {
-        TeamResponseDto response = botService.botPickPlayer(teamId);
-        return ResponseEntity.ok(response);
-    } catch (EBotException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(null);
+    public ResponseEntity<Map<String, String>> botPickPlayer(@PathVariable Long teamId) {
+        BotPickResponseDto response = botService.botPickPlayer(teamId);
+        String message = response.getTeam().getTeamName() + " has picked " + 
+                       response.getPickedPlayerName() + " (" + response.getPickedPosition() + ")";
+        return ResponseEntity.ok(Collections.singletonMap("message", message));
     }
-}
 
 @DeleteMapping("/teams/{teamId}")
 public ResponseEntity<?> deleteBotTeam(@PathVariable Long teamId) {
