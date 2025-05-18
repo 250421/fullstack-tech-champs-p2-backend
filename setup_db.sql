@@ -63,8 +63,3 @@ CREATE TABLE bots(
     difficulty_level VARCHAR(100),
     strategy VARCHAR(100)
 );
-
-ALTER TABLE players
-ADD CONSTRAINT team_foreignKey
-FOREIGN KEY (team_id) REFERENCES teams(id)
-ON DELETE CASCADE;
