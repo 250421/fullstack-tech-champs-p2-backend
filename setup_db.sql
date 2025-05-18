@@ -28,7 +28,7 @@ CREATE TABLE draft_picks(
 );
 
 CREATE TABLE players(
-    id SERIAL PRIMARY KEY,
+    player_id SERIAL PRIMARY KEY,
     position VARCHAR(100) NOT NULL,
     team_id INTEGER,
     player_api_id INTEGER,
@@ -72,3 +72,8 @@ ALTER TABLE players
 ADD CONSTRAINT team_foreignKey
 FOREIGN KEY (team_id) REFERENCES teams(id)
 ON DELETE CASCADE;
+
+ALTER TABLE users ALTER COLUMN role SET DEFAULT 'user';
+
+DELETE FROM players
+WHERE week NOT IN (1, 2, 3, 4);
