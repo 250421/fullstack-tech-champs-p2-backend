@@ -22,13 +22,11 @@ CREATE TABLE draft_picks(
     league_id INTEGER NOT NULL,
     pick_number INTEGER NOT NULL,
     team_id INTEGER NOT NULL,
-    player_id INTEGER,
-    CONSTRAINT league_id_fk FOREIGN KEY (league_id)
-    REFERENCES leagues (id) ON DELETE CASCADE
+    player_data VARCHAR(100)
 );
 
 CREATE TABLE players(
-    player_id SERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     position VARCHAR(100) NOT NULL,
     team_id INTEGER,
     player_api_id INTEGER,
@@ -54,10 +52,7 @@ CREATE TABLE teams(
     k VARCHAR(100),
     rb VARCHAR(100),
     wr VARCHAR(100),
-    te VARCHAR(100),
-    de VARCHAR(100),
-    CONSTRAINT user_id_fk FOREIGN KEY (user_id)
-    REFERENCES users (user_id) ON DELETE CASCADE
+    te VARCHAR(100)
 );
 
 CREATE TABLE bots(
@@ -67,13 +62,3 @@ CREATE TABLE bots(
     difficulty_level VARCHAR(100),
     strategy VARCHAR(100)
 );
-
-ALTER TABLE players
-ADD CONSTRAINT team_foreignKey
-FOREIGN KEY (team_id) REFERENCES teams(id)
-ON DELETE CASCADE;
-
-ALTER TABLE users ALTER COLUMN role SET DEFAULT 'user';
-
-DELETE FROM players
-WHERE week NOT IN (1, 2, 3, 4);

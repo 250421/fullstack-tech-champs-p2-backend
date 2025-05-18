@@ -92,10 +92,10 @@ public class DraftPickController {
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateDraftPick(HttpServletRequest request, @PathVariable("id") Integer id, @RequestBody DraftPick draftPick) {
+    @PutMapping("/pick-number/{pick_number}")
+    public ResponseEntity<?> updateDraftPick(HttpServletRequest request, @PathVariable("pick_number") Integer pick_number, @RequestBody DraftPick draftPick) {
        try {
-            draftPickService.updateDraftPick(id, draftPick);
+            draftPickService.updateDraftPick(pick_number, draftPick);
             Map<String, Boolean> map = new HashMap<>();
             map.put("success", true);
             return new ResponseEntity<>(map, HttpStatus.OK);

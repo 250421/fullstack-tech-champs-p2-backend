@@ -1,9 +1,6 @@
 package com.revature.nflfantasydraft.Config;
-// import io.github.cdimascio.dotenv.Dotenv;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Configuration;
-
-// uncomment next line for local developemnt
-// import io.github.cdimascio.dotenv.Dotenv;
 
 
 @Configuration
@@ -23,3 +20,4 @@ public class EnvConfig {
         // });
     }
 }
+  

@@ -1,4 +1,5 @@
 package com.revature.nflfantasydraft.Repository;
+import com.revature.nflfantasydraft.Dto.UndraftedPlayerDto;
 import com.revature.nflfantasydraft.Entity.Player;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -54,9 +55,13 @@ List<Object[]> findPlayerWithTotalPointsByApiId(@Param("playerApiId") Integer pl
     @Query("UPDATE Player p SET p.isDrafted = true WHERE p.playerApiId = :playerApiId")
     void markPlayerAsDrafted(@Param("playerApiId") Integer playerApiId);
 
-    @Query("SELECT p.playerApiId, p.name, p.position, p.fantasyPoints, p.isDrafted " +
-           "FROM Player p WHERE p.isDrafted = false")
-    List<Object[]> findByIsDraftedFalse();
+    
+
+    @Query("SELECT new com.revature.nflfantasydraft.Dto.UndraftedPlayerDto(" +
+       "p.playerApiId, p.name, p.team, p.position, p.fantasyPoints, p.isDrafted) " +
+       "FROM Player p WHERE p.isDrafted = false")
+    List<UndraftedPlayerDto> findUndraftedPlayers();
+
 
 }
  

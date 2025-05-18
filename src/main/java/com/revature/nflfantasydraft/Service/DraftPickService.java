@@ -37,8 +37,8 @@ public class DraftPickService {
         return draftPickRepository.findById(draftPickId);
     }
 
-    public void updateDraftPick(Integer draftPickId, DraftPick draftPick) throws EtBadRequestException {
-        draftPickRepository.update(draftPickId, draftPick);
+    public void updateDraftPick(Integer pickNumber, DraftPick draftPick) throws EtBadRequestException {
+        draftPickRepository.update(pickNumber, draftPick);
     }
 
     public void removeDraftPick(Integer draftPickId) throws EtResourceNotFoundException {

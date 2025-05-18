@@ -22,7 +22,7 @@ public class DraftPickRepository {
     private static final String SQL_FIND_BY_ID = "SELECT * FROM draft_picks WHERE id = ?";
     private static final String SQL_FIND_BY_PICK_NUMBER = "SELECT * FROM draft_picks WHERE pick_number = ?";
     private static final String SQL_FIND_ALL = "SELECT * FROM draft_picks";
-    private static final String SQL_UPDATE = "UPDATE draft_picks SET player_id = ? WHERE id = ?";
+    private static final String SQL_UPDATE = "UPDATE draft_picks SET player_data = ? WHERE pick_number = ?";
     private static final String SQL_DELETE = "DELETE FROM draft_picks WHERE id = ?";
 
     @Autowired
@@ -86,14 +86,14 @@ public class DraftPickRepository {
         }
     }
 
-    public void update(Integer id, DraftPick draftPick) throws EtBadRequestException {
+    public void update(Integer pickNumber, DraftPick draftPick) throws EtBadRequestException {
         System.out.println("In update draftPick repo");
         try {
-            System.out.println("PlayerID, " + draftPick.getPlayerId());
+            System.out.println("PlayerCSV, " + draftPick.getPlayerData());
             int rowsAffected = jdbcTemplate.update(
                 SQL_UPDATE,
-                draftPick.getPlayerId(),
-                id
+                draftPick.getPlayerData(),
+                pickNumber
             );
             if (rowsAffected == 0) {
                 throw new EtResourceNotFoundException("DraftPick not found to update");
@@ -124,7 +124,7 @@ public class DraftPickRepository {
             rs.getInt("league_id"),
             rs.getInt("pick_number"),
             rs.getInt("team_id"),
-            rs.getInt("player_id")
+            rs.getString("player_data")
         );
     });
     

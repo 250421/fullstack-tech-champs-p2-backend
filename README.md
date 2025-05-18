@@ -29,3 +29,9 @@ We'll be using the NFL API from SportsDataIO, and the Open AI API
 ## ERD
 
 <img src="P2-ERD-Design.png">
+
+## ERD
+
+- Users table: username, password, role
+- Teams: team_id, name, qb_id, kicker_id, running_back_id, tide_end_id, wide_receiver_id
+- Player (real life athletes)
