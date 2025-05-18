@@ -2,12 +2,13 @@
 
 // import org.springframework.context.annotation.Bean;
 // import org.springframework.context.annotation.Configuration;
-// import org.springframework.http.HttpMethod;
 // import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 // import org.springframework.security.web.SecurityFilterChain;
 
-// @Configuration // Marks this class as a configuration class for Spring
-// public class SecurityConfig {
+
+
+// @Configuration
+//  public class SecurityConfig {
     
 //     @Bean // Defines a bean for the SecurityFilterChain
 //     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -30,6 +31,7 @@
 //             // Allows GET requests to "/api/players/not-drafted" without authentication
 //             .requestMatchers(HttpMethod.GET, "/api/players/not-drafted").permitAll()
 //             .requestMatchers(HttpMethod.GET, "/api/teams/leaderboard").permitAll()
+//             .requestMatchers(HttpMethod.GET, "/api/teams/team1/**").permitAll()
 //             // Allows public access to the specified endpoints
 //             .requestMatchers(
 //                 "/api/players/**", 
@@ -47,3 +49,4 @@
 //         return http.build();
 //     }
 // }
+

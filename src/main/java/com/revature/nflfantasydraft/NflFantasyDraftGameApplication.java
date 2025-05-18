@@ -24,6 +24,7 @@ public class NflFantasyDraftGameApplication {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		CorsConfiguration config = new CorsConfiguration();
 		config.addAllowedOrigin("http://localhost:5173");
+		config.addAllowedOrigin("http://3.20.227.225:3000");
 		config.addAllowedHeader("*");
 		config.addAllowedMethod("*");
 		config.setAllowCredentials(true);
@@ -42,8 +43,11 @@ public class NflFantasyDraftGameApplication {
 		AuthFilter authFilter = new AuthFilter();
 		registrationBean.setFilter(authFilter);
 		registrationBean.addUrlPatterns( 
-			"/api/users/me",
-        "/api/teams/*"
+			"/api/leagues/*", 
+			"/api/teams/*", 
+			"/api/bots/*",
+			"/api/draft_picks/*",
+			"/api/users/me"
 		);
 		return registrationBean;
 	}
