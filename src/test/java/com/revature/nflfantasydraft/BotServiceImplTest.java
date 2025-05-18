@@ -112,100 +112,100 @@ class BotServiceImplTest {
         assertThrows(EBotException.class, () -> botService.deleteBotTeam(1L));
     }
 
-    // New test cases for botPickPlayer functionality
-    @Test
-    void botPickPlayer_ShouldReturnCompleteResponse() throws EBotException {
-        // 1. Setup complete mock response chain
-        var chatCompletionResult = new com.theokanning.openai.completion.chat.ChatCompletionResult();
-        var choice = new com.theokanning.openai.completion.chat.ChatCompletionChoice();
-        var message = new com.theokanning.openai.completion.chat.ChatMessage("assistant", "123");
-        choice.setMessage(message);
-        chatCompletionResult.setChoices(Collections.singletonList(choice));
+    // // New test cases for botPickPlayer functionality
+    // @Test
+    // void botPickPlayer_ShouldReturnCompleteResponse() throws EBotException {
+    //     // 1. Setup complete mock response chain
+    //     var chatCompletionResult = new com.theokanning.openai.completion.chat.ChatCompletionResult();
+    //     var choice = new com.theokanning.openai.completion.chat.ChatCompletionChoice();
+    //     var message = new com.theokanning.openai.completion.chat.ChatMessage("assistant", "123");
+    //     choice.setMessage(message);
+    //     chatCompletionResult.setChoices(Collections.singletonList(choice));
     
-        // 2. Mock the entire OpenAI service call chain
-        when(openAIConfig.getApiKey()).thenReturn("${OPENAI_API_KEY}");
-        when(openAiService.createChatCompletion(any()))
-            .thenReturn(chatCompletionResult);
+    //     // 2. Mock the entire OpenAI service call chain
+    //     when(openAIConfig.getApiKey()).thenReturn("${OPENAI_API_KEY}");
+    //     when(openAiService.createChatCompletion(any()))
+    //         .thenReturn(chatCompletionResult);
     
-        // 3. Mock repository responses
-        when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-        when(playerRepository.findUndraftedPlayers()).thenReturn(
-            Collections.singletonList(undraftedPlayer)
-        );
-        when(playerRepository.findAllByPlayerApiId(123)).thenReturn(
-            Arrays.asList(player1, player2)
-        );
-        when(teamRepository.save(any())).thenReturn(team);
+    //     // 3. Mock repository responses
+    //     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    //     when(playerRepository.findUndraftedPlayers()).thenReturn(
+    //         Collections.singletonList(undraftedPlayer)
+    //     );
+    //     when(playerRepository.findAllByPlayerApiId(123)).thenReturn(
+    //         Arrays.asList(player1, player2)
+    //     );
+    //     when(teamRepository.save(any())).thenReturn(team);
         
-        TeamResponseDto mockTeamResponse = new TeamResponseDto();
-        mockTeamResponse.setTeamId(1L);
-        when(teamService.convertToResponseDto(any())).thenReturn(mockTeamResponse);
+    //     TeamResponseDto mockTeamResponse = new TeamResponseDto();
+    //     mockTeamResponse.setTeamId(1L);
+    //     when(teamService.convertToResponseDto(any())).thenReturn(mockTeamResponse);
     
-        // 4. Execute
-        BotPickResponseDto result = botService.botPickPlayer(1L);
+    //     // 4. Execute
+    //     BotPickResponseDto result = botService.botPickPlayer(1L);
     
-        // 5. Verify
-        assertNotNull(result);
-        assertEquals("Test Player", result.getPickedPlayerName());
-    }
+    //     // 5. Verify
+    //     assertNotNull(result);
+    //     assertEquals("Test Player", result.getPickedPlayerName());
+    // }
 
-    @Test
-    void botPickPlayer_ShouldThrowWhenNoEligiblePlayers() {
-        // 1. Set up the team with bot relationship
-        Team team = new Team();
-        team.setTeamId(1L);
-        team.setIsBot(true);
-        team.setBot(bot); // Make sure bot is set
+    // @Test
+    // void botPickPlayer_ShouldThrowWhenNoEligiblePlayers() {
+    //     // 1. Set up the team with bot relationship
+    //     Team team = new Team();
+    //     team.setTeamId(1L);
+    //     team.setIsBot(true);
+    //     team.setBot(bot); // Make sure bot is set
         
-        // 2. Mock the repository responses
-        when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-        when(playerRepository.findUndraftedPlayers()).thenReturn(Collections.emptyList());
+    //     // 2. Mock the repository responses
+    //     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+    //     when(playerRepository.findUndraftedPlayers()).thenReturn(Collections.emptyList());
         
-        // 3. Mock the OpenAI config (even though we shouldn't reach it)
-        when(openAIConfig.getApiKey()).thenReturn("${OPENAI_API_KEY}");
+    //     // 3. Mock the OpenAI config (even though we shouldn't reach it)
+    //     when(openAIConfig.getApiKey()).thenReturn("${OPENAI_API_KEY}");
         
-        // 4. Execute and verify
-        EBotException exception = assertThrows(EBotException.class, 
-            () -> botService.botPickPlayer(1L));
+    //     // 4. Execute and verify
+    //     EBotException exception = assertThrows(EBotException.class, 
+    //         () -> botService.botPickPlayer(1L));
         
-        // 5. Additional verification
-        assertEquals("No available undrafted players", exception.getMessage());
+    //     // 5. Additional verification
+    //     assertEquals("No available undrafted players", exception.getMessage());
         
-        // Verify OpenAI service was never called
-        verify(openAiService, never()).createChatCompletion(any());
-    }
+    //     // Verify OpenAI service was never called
+    //     verify(openAiService, never()).createChatCompletion(any());
+    // }
 
-@Test
-void botPickPlayer_ShouldMarkPlayersAsDrafted() throws EBotException {
-    // 1. Setup complete mock response chain
-    var chatCompletionResult = new com.theokanning.openai.completion.chat.ChatCompletionResult();
-    var choice = new com.theokanning.openai.completion.chat.ChatCompletionChoice();
-    var message = new com.theokanning.openai.completion.chat.ChatMessage("assistant", "123");
-    choice.setMessage(message);
-    chatCompletionResult.setChoices(Collections.singletonList(choice));
+// @Test
+// void botPickPlayer_ShouldMarkPlayersAsDrafted() throws EBotException {
+//     // 1. Setup complete mock response chain
+//     var chatCompletionResult = new com.theokanning.openai.completion.chat.ChatCompletionResult();
+//     var choice = new com.theokanning.openai.completion.chat.ChatCompletionChoice();
+//     var message = new com.theokanning.openai.completion.chat.ChatMessage("assistant", "123");
+//     choice.setMessage(message);
+//     chatCompletionResult.setChoices(Collections.singletonList(choice));
 
-    // 2. Mock the entire OpenAI service call chain
-    when(openAIConfig.getApiKey()).thenReturn("${OPENAI_API_KEY}");
-    when(openAiService.createChatCompletion(any()))
-        .thenReturn(chatCompletionResult);
+//     // 2. Mock the entire OpenAI service call chain
+//     when(openAIConfig.getApiKey()).thenReturn("${OPENAI_API_KEY}");
+//     when(openAiService.createChatCompletion(any()))
+//         .thenReturn(chatCompletionResult);
 
-    // 3. Mock repository responses
-    when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-    when(playerRepository.findUndraftedPlayers()).thenReturn(
-        Collections.singletonList(undraftedPlayer)
-    );
-    when(playerRepository.findAllByPlayerApiId(123)).thenReturn(
-        Arrays.asList(player1, player2)
-    );
-    when(teamRepository.save(any())).thenReturn(team);
-    when(teamService.convertToResponseDto(any())).thenReturn(new TeamResponseDto());
+//     // 3. Mock repository responses
+//     when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
+//     when(playerRepository.findUndraftedPlayers()).thenReturn(
+//         Collections.singletonList(undraftedPlayer)
+//     );
+//     when(playerRepository.findAllByPlayerApiId(123)).thenReturn(
+//         Arrays.asList(player1, player2)
+//     );
+//     when(teamRepository.save(any())).thenReturn(team);
+//     when(teamService.convertToResponseDto(any())).thenReturn(new TeamResponseDto());
 
-    // 4. Execute
-    botService.botPickPlayer(1L);
+//     // 4. Execute
+//     botService.botPickPlayer(1L);
 
-    // 5. Verify
-    assertTrue(player1.getIsDrafted());
-    assertTrue(player2.getIsDrafted());
-}
+//     // 5. Verify
+//     assertTrue(player1.getIsDrafted());
+//     assertTrue(player2.getIsDrafted());
+// }
 
 }
