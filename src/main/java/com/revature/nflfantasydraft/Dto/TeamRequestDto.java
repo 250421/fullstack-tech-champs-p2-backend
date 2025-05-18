@@ -6,11 +6,11 @@ import lombok.Data;
 public class TeamRequestDto {
     private String teamName;
     private Integer userId; // Just need the ID, not the whole user object
+    private Long leagueId;
     private String qb;
     private String rb;
     private String wr;
     private String te;
     private String k;
-    private Long leagueId;
 }
   

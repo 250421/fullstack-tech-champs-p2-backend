@@ -10,9 +10,6 @@ import com.revature.nflfantasydraft.Exceptions.ETeamException;
 import com.revature.nflfantasydraft.Repository.PlayerRepository;
 import com.revature.nflfantasydraft.Repository.TeamRepository;
 import com.revature.nflfantasydraft.Repository.UserRepository;
-
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,9 +32,13 @@ public class TeamServiceImpl implements TeamService {
     
     @Override
 public TeamResponseDto createTeam(TeamRequestDto teamRequestDto) {
+    System.out.println("INSIDE TEAM SERVICE");
+    System.out.println(teamRequestDto.getTeamName());
     // Validate user exists
     User user = userRepository.findById(teamRequestDto.getUserId())
         .orElseThrow(() -> new ETeamException("User not found"));
+
+    System.out.println("About to get fields");
     
     // Create and save team
     Team team = new Team();
@@ -49,6 +50,10 @@ public TeamResponseDto createTeam(TeamRequestDto teamRequestDto) {
     team.setWr(teamRequestDto.getWr());
     team.setTe(teamRequestDto.getTe());
     team.setK(teamRequestDto.getK());
+
+    System.out.println("About to save");
+
+    System.out.println(team);
     
     Team savedTeam = teamRepository.save(team);
     
