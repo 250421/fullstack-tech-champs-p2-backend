@@ -7,11 +7,11 @@ import org.springframework.context.annotation.Configuration;
 public class EnvConfig {
     public EnvConfig() {
         // Access the environment variables from the OS/Jenkins directly
-        String apiKey = System.getenv("YOUR_API_KEY");
-        String otherKey = System.getenv("YOUR_OTHER_KEY");
+        String sportsApiKey = System.getenv("SPORTSDATA_API_KEY");
+        String openAI = System.getenv("OPENAI_API_KEY");
 
-        if (apiKey != null) System.setProperty("YOUR_API_KEY", apiKey);
-        if (otherKey != null) System.setProperty("YOUR_OTHER_KEY", otherKey);
+        if (sportsApiKey != null) System.setProperty("SPORTSDATA_API_KEY", sportsApiKey);
+        if (openAI != null) System.setProperty("OPENAI_API_KEY", openAI);
 
         // For local development only. Uncomment below for running on your machine
         // Dotenv dotenv = Dotenv.configure().load();
