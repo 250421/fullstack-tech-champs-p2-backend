@@ -14,11 +14,17 @@ For project 2 here at Revature, we created an NFL fantasy football game app wher
 
 ## MVP user stories
 
-- User Story 1: Sign up with email to make it easy to sign in
-- Create a team with 5 players (user can only have 1 team) (the computer creates an open AI API user), and the open API uses LLM to choose players
-- User can add/draft athletes to their team, and this happens by random chance.
-- User plays a game against the computer. Start the season, which lasts 18 weeks, there's 10 seconds per week, Every 10 seconds (1 week passes)
-- At the end of the season it shows a winner, whoever won gets the money.
+User Story 1: Football season is over, a User is bored and wants to play a game. The User head over to the NflfantasyDraftGame web app and Sign up with email and password.
+
+User can Create a team with up to 5 players and min 2 players (the computer creates an open AI API userBot), and the open API uses LLM to choose players based on strategy and difficulty.
+
+User can draft athletes to their team.
+
+User plays a game against the computer by Starting the draft, where every team gets 5 picks.
+
+At the end of the Draft, the user heads to the leaderboard page finds out who the winner is.
+
+Goal of the game is to win, have fun and increase fantasy football knowlege so Users can be ready for a real draft come this fall 2025 Football season.
 
 <img src="P2-Frontend-Design.png">
 
