@@ -18,14 +18,16 @@ For project 2, we will create a fantasy football app where the user plays agains
 ## MVP user stories
 
 - User Story 1: Football season is over, a User is bored and wants to play a game. The User head over to the NflfantasyDraftGame web app and Sign up with email and password.
-- 
+  
 - User can Create a team with up to 5 players and min 2 players (the computer creates an open AI API userBot), and the open API uses LLM to choose players based on strategy and difficulty.
-- User can add/draft athletes to their team.
+  
+- User can draft athletes to their team.
+  
 - User plays a game against the computer by Starting the draft, where every team gets 5 picks.
   
-- At the end of the Draft, the user heads to the leaderboard page that shows who the winner is.
+- At the end of the Draft, the user heads to the leaderboard page finds out who the winner is.
 
-- Goal of the game is to win, have fun and increase fantasy football knowlege so Users can be ready for real draft come this fall 2025 season.
+- Goal of the game is to win, have fun and increase fantasy football knowlege so Users can be ready for a real draft come this fall 2025 Football season.
 
 <img src="P2-Design-Diagrams.png">
 
