@@ -253,12 +253,17 @@ public BotPickResponseDto  botPickPlayer(Long teamId) {
     System.out.println("TESTING INITIAL 16");
     
     chatCompletionRequest.setModel("gpt-4.1-nano");
+    System.out.println("TESTING INITIAL 16.1");
     chatCompletionRequest.setMessages(Arrays.asList(
         new ChatMessage("system", "You are an NFL fantasy draft assistant. Return ONLY the numeric playerApiId for a player in a needed position."),
         new ChatMessage("user", prompt)
     ));
+    System.out.println("TESTING INITIAL 16.2");
     chatCompletionRequest.setMaxTokens(10);
+    System.out.println("TESTING INITIAL 16.3");
     chatCompletionRequest.setTemperature(0.5);
+
+    System.out.println("TESTING INITIAL 16.4");
 
     String response = openAiService.createChatCompletion(chatCompletionRequest)
         .getChoices()
