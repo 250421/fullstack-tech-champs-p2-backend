@@ -180,72 +180,94 @@ public TeamResponseDto createBotTeam(BotTeamRequestDto botTeamRequestDto) {
 
 @Override
 public BotPickResponseDto  botPickPlayer(Long teamId) {
-    // Initialize OpenAI service
-    OpenAiService openAiService = new OpenAiService(openAIConfig.getApiKey());
     
-    // Fetch bot and team
-    Team team = teamRepository.findById(teamId)
-            .orElseThrow(() -> new EBotException("Team not found"));
-    
-    if (!Boolean.TRUE.equals(team.getIsBot())) {
-        throw new EBotException("Only bot teams can use this feature");
-    }
-    
-    // Get all undrafted players as DTOs
-    List<UndraftedPlayerDto> availablePlayers = playerRepository.findUndraftedPlayers();
-    
-    if (availablePlayers.isEmpty()) {
-        throw new EBotException("No available undrafted players");
-    }
-    
-    // Determine which positions still need players
-    List<String> neededPositions = getNeededPositions(team);
-    if (neededPositions.isEmpty()) {
-        throw new EBotException("All positions are already filled");
-    }
-    
-    // Filter players to only include needed positions
-    List<UndraftedPlayerDto> eligiblePlayers = availablePlayers.stream()
-            .filter(p -> neededPositions.contains(p.getPosition().toUpperCase()))
-            .collect(Collectors.toList());
-    
-    if (eligiblePlayers.isEmpty()) {
-        throw new EBotException("No available players for needed positions: " + neededPositions);
-    }
-    
-    // Build the prompt for AI to select a player
-    String prompt = String.format(
-        "Strategy: %s\nDifficulty: %s\nNeeded Positions: %s\nAvailable Players:\n%s\n" +
-        "Rules: 1) Only pick players for needed positions\n" +
-        "2) Return ONLY their playerApiId as a number."+
-        "3) Only pick players with > 0 fantasyPoints",
-        team.getBot().getStrategy(),
-        team.getBot().getDifficultyLevel(),
-        String.join(", ", neededPositions),
-        eligiblePlayers.stream()
-            .map(p -> String.format("- %s (ID: %d, Pos: %s, Tea: %s, Pts: %.1f)", 
-                p.getName(), p.getPlayerApiId(), p.getTeam(), p.getPosition(), p.getFantasyPoints()))
-            .collect(Collectors.toList())
-    );
-    
-    // Get AI response
-    ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest();
-    chatCompletionRequest.setModel("gpt-4.1-nano");
-    chatCompletionRequest.setMessages(Arrays.asList(
-        new ChatMessage("system", "You are an NFL fantasy draft assistant. Return ONLY the numeric playerApiId for a player in a needed position."),
-        new ChatMessage("user", prompt)
-    ));
-    chatCompletionRequest.setMaxTokens(10);
-    chatCompletionRequest.setTemperature(0.5);
-
-    String response = openAiService.createChatCompletion(chatCompletionRequest)
-        .getChoices()
-        .get(0)
-        .getMessage()
-        .getContent()
-        .trim();
-    
+    System.out.println("TESTING INITIAL 1");
     try {
+        // Initialize OpenAI service
+        OpenAiService openAiService = new OpenAiService(openAIConfig.getApiKey());
+        System.out.println("TESTING INITIAL 2");
+        // Fetch bot and team
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EBotException("Team not found"));
+    
+        System.out.println("TESTING INITIAL 3");
+        if (!Boolean.TRUE.equals(team.getIsBot())) {
+            System.out.println("TESTING INITIAL 4");
+            throw new EBotException("Only bot teams can use this feature");
+        }
+        System.out.println("TESTING INITIAL 5");
+        // Get all undrafted players as DTOs
+        List<UndraftedPlayerDto> availablePlayers = playerRepository.findUndraftedPlayers();
+        System.out.println("TESTING INITIAL 6");
+        
+        if (availablePlayers.isEmpty()) {
+            System.out.println("TESTING INITIAL 7");
+            throw new EBotException("No available undrafted players");
+        }
+    
+        System.out.println("TESTING INITIAL 8");
+        
+        // Determine which positions still need players
+        List<String> neededPositions = getNeededPositions(team);
+    
+        System.out.println("TESTING INITIAL 9");
+        if (neededPositions.isEmpty()) {
+            System.out.println("TESTING INITIAL 10");
+            throw new EBotException("All positions are already filled");
+        }
+    
+        System.out.println("TESTING INITIAL 11");
+        
+        // Filter players to only include needed positions
+        List<UndraftedPlayerDto> eligiblePlayers = availablePlayers.stream()
+                .filter(p -> neededPositions.contains(p.getPosition().toUpperCase()))
+                .collect(Collectors.toList());
+        System.out.println("TESTING INITIAL 12");
+        
+        if (eligiblePlayers.isEmpty()) {
+            System.out.println("TESTING INITIAL 13");
+            throw new EBotException("No available players for needed positions: " + neededPositions);
+        }
+    
+        System.out.println("TESTING INITIAL 14");
+        
+        // Build the prompt for AI to select a player
+        String prompt = String.format(
+            "Strategy: %s\nDifficulty: %s\nNeeded Positions: %s\nAvailable Players:\n%s\n" +
+            "Rules: 1) Only pick players for needed positions\n" +
+            "2) Return ONLY their playerApiId as a number."+
+            "3) Only pick players with > 0 fantasyPoints",
+            team.getBot().getStrategy(),
+            team.getBot().getDifficultyLevel(),
+            String.join(", ", neededPositions),
+            eligiblePlayers.stream()
+                .map(p -> String.format("- %s (ID: %d, Pos: %s, Tea: %s, Pts: %.1f)", 
+                    p.getName(), p.getPlayerApiId(), p.getTeam(), p.getPosition(), p.getFantasyPoints()))
+                .collect(Collectors.toList())
+        );
+        
+        System.out.println("TESTING INITIAL 15");
+        
+        // Get AI response
+        ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest();
+        System.out.println("TESTING INITIAL 16");
+        
+        chatCompletionRequest.setModel("gpt-4.1-nano");
+        chatCompletionRequest.setMessages(Arrays.asList(
+            new ChatMessage("system", "You are an NFL fantasy draft assistant. Return ONLY the numeric playerApiId for a player in a needed position."),
+            new ChatMessage("user", prompt)
+        ));
+        chatCompletionRequest.setMaxTokens(10);
+        chatCompletionRequest.setTemperature(0.5);
+    
+        String response = openAiService.createChatCompletion(chatCompletionRequest)
+            .getChoices()
+            .get(0)
+            .getMessage()
+            .getContent()
+            .trim();
+
+        System.out.println("TESTING INITIAL 17");
         Integer playerApiId = Integer.parseInt(response);
         
         // Find the selected player
@@ -253,23 +275,30 @@ public BotPickResponseDto  botPickPlayer(Long teamId) {
             .filter(p -> p.getPlayerApiId().equals(playerApiId))
             .findFirst()
             .orElseThrow(() -> new EBotException("Selected player not found or not eligible"));
+
+        System.out.println("TESTING INITIAL 18");
         
         // Verify position is still needed (race condition check)
         if (!neededPositions.contains(selectedPlayer.getPosition().toUpperCase())) {
+            System.out.println("TESTING INITIAL 19");
             throw new EBotException("Selected position " + selectedPlayer.getPosition() + " is already filled");
         }
-        
+
+        System.out.println("TESTING INITIAL 20");
         // Get all player records for this API ID and mark them as drafted
         List<Player> players = playerRepository.findAllByPlayerApiId(playerApiId);
         players.forEach(player -> {
             player.setIsDrafted(true);
             playerRepository.save(player);
         });
+        System.out.println("TESTING INITIAL 21");
 
         // Calculate total points
         Double totalPoints = players.stream()
             .mapToDouble(Player::getFantasyPoints)
             .sum();
+
+        System.out.println("TESTING INITIAL 22");
 
         // Update team
         String playerInfo = String.format("%s, %s, %s, %.1f",
@@ -277,6 +306,8 @@ public BotPickResponseDto  botPickPlayer(Long teamId) {
             selectedPlayer.getTeam(),
             selectedPlayer.getPlayerApiId(),
             totalPoints);
+
+        System.out.println("TESTING INITIAL 23");
         
         // Update the appropriate position
         switch (selectedPlayer.getPosition().toUpperCase()) {
@@ -287,15 +318,18 @@ public BotPickResponseDto  botPickPlayer(Long teamId) {
             case "K": team.setK(playerInfo); break;
             default: throw new EBotException("Invalid position: " + selectedPlayer.getPosition());
         }
+
+        System.out.println("TESTING INITIAL 24");
         
         Team updatedTeam = teamRepository.save(team);
         
-
+        System.out.println("TESTING INITIAL 25");
         // Create and return response
         BotPickResponseDto responseDto = new BotPickResponseDto();
         responseDto.setTeam(teamService.convertToResponseDto(updatedTeam));
         responseDto.setPickedPlayerName(selectedPlayer.getName());
 
+        System.out.println("TESTING INITIAL 26");
         return responseDto;
         
     } catch (NumberFormatException e) {
