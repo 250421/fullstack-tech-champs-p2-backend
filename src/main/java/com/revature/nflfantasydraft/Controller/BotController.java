@@ -108,9 +108,17 @@ public ResponseEntity<?> getAllBotTeams() {
 
     @PostMapping("/{teamId}/pick-player")
     public ResponseEntity<Map<String, String>> botPickPlayer(@PathVariable Long teamId) {
-        BotPickResponseDto response = botService.botPickPlayer(teamId);
-        String message =  response.getPickedPlayerName();
-        return ResponseEntity.ok(Collections.singletonMap("message", message));
+        System.out.println("INSIDE BOT PICK HERE");
+        try {
+            System.out.println("BEFORE CALLLING BOT SERVICE");
+            BotPickResponseDto response = botService.botPickPlayer(teamId);
+            System.out.println("AFTER CALLLING BOT SERVICE");
+            String message =  response.getPickedPlayerName();
+            return ResponseEntity.ok(Collections.singletonMap("message", message));
+        } catch (EBotException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("error", e.getMessage()));
+        }
     }
 
 @DeleteMapping("/teams/{teamId}")
